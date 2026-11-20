@@ -33,6 +33,7 @@
       "name": "inflectionts",
       "version": "0.1.0",
       "devDependencies": {
+        "@effect/platform-bun": "catalog:",
         "@types/bun": "catalog:",
         "effect": "catalog:",
         "typescript": "catalog:",
