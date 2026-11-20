@@ -39,6 +39,23 @@ ensure_nix() {
   fi
 }
 
+# Append the direnv hook to ~/.bashrc. Kept separate from ensure_direnv so
+# .agents/resume can re-apply just the dotfile hooks: Amp's orb bootstrap rewrites
+# ~/.bashrc and ~/.bash_profile after setup runs on a fresh orb.
+install_direnv_hook_block() {
+  local bashrc_marker="# inflectionts direnv hook"
+  touch "$HOME/.bashrc"
+  if ! grep -Fqx "$bashrc_marker" "$HOME/.bashrc" 2>/dev/null; then
+    cat >> "$HOME/.bashrc" <<EOF
+
+$bashrc_marker
+if command -v direnv >/dev/null 2>&1; then
+  eval "\$(direnv hook bash)"
+fi
+EOF
+  fi
+}
+
 ensure_direnv() {
   local nix_bin
   nix_bin="$(command -v nix)"
@@ -56,17 +73,7 @@ ensure_direnv() {
 source "${nix_direnv_out}/share/nix-direnv/direnvrc"
 EOF
 
-  local bashrc_marker="# inflectionts direnv hook"
-  touch "$HOME/.bashrc"
-  if ! grep -Fqx "$bashrc_marker" "$HOME/.bashrc" 2>/dev/null; then
-    cat >> "$HOME/.bashrc" <<EOF
-
-$bashrc_marker
-if command -v direnv >/dev/null 2>&1; then
-  eval "\$(direnv hook bash)"
-fi
-EOF
-  fi
+  install_direnv_hook_block
 
   local direnv_bin="$HOME/.nix-profile/bin/direnv"
   "$direnv_bin" allow "$repo_root"
@@ -75,25 +82,12 @@ EOF
   "$direnv_bin" exec "$repo_root" true
 }
 
-persist_nix_dev_env() {
+# Write (or replace) the managed dev-shell block in ~/.bash_profile. Kept separate
+# from persist_nix_dev_env so .agents/resume can re-apply it after Amp's orb
+# bootstrap rewrites the profile on a fresh orb.
+install_nix_dev_shell_block() {
   local nix_bin
   nix_bin="$(command -v nix)"
-
-  # Keep the pinned Bun from this flake on ~/.nix-profile/bin so even non-login shells
-  # that inherit PATH from Amp's sandbox env (where ~/.nix-profile/bin precedes /usr/local/bin)
-  # resolve the flake's pinned Bun rather than the base image's /usr/local/bin/bun.
-  local active_bun_bin active_bun_store
-  active_bun_bin="$(readlink -f "$(command -v bun)")"
-  active_bun_store="$(dirname "$(dirname "$active_bun_bin")")"
-  local expected_bun_version
-  expected_bun_version="$("$active_bun_bin" --version)"
-
-  if [[ "$active_bun_store" == /nix/store/* ]]; then
-    if [[ ! -x "$HOME/.nix-profile/bin/bun" ]] || [[ "$("$HOME/.nix-profile/bin/bun" --version 2>/dev/null || true)" != "$expected_bun_version" ]]; then
-      "$nix_bin" profile remove '.*bun.*' 2>/dev/null || true
-      "$nix_bin" profile add "$active_bun_store"
-    fi
-  fi
 
   local profile_marker="# inflectionts Nix development shell"
   local hook_body
@@ -128,24 +122,52 @@ EOF
   mv "$tmp_profile" "$HOME/.bash_profile"
 }
 
-step "Ensure Nix with flakes" ensure_nix
-step "Install and allow direnv + nix-direnv" ensure_direnv
-
-# Activate the cached Nix devShell in this setup process so subsequent commands
-# use the flake's pinned Bun and host tools without re-evaluating the flake.
-start_s="$(date +%s)"
-echo "[setup] ==> Activate Nix devShell (pinned Bun 1.4.5)"
-eval "$(DIRENV_LOG_FORMAT= "$HOME/.nix-profile/bin/direnv" export bash)"
-if [[ -z "${IN_NIX_SHELL:-}" ]]; then
+persist_nix_dev_env() {
+  local nix_bin
   nix_bin="$(command -v nix)"
-  eval "$("$nix_bin" print-dev-env --option warn-dirty false "$repo_root")"
+
+  # Keep the pinned Bun from this flake on ~/.nix-profile/bin so even non-login shells
+  # that inherit PATH from Amp's sandbox env (where ~/.nix-profile/bin precedes /usr/local/bin)
+  # resolve the flake's pinned Bun rather than the base image's /usr/local/bin/bun.
+  local active_bun_bin active_bun_store
+  active_bun_bin="$(readlink -f "$(command -v bun)")"
+  active_bun_store="$(dirname "$(dirname "$active_bun_bin")")"
+  local expected_bun_version
+  expected_bun_version="$("$active_bun_bin" --version)"
+
+  if [[ "$active_bun_store" == /nix/store/* ]]; then
+    if [[ ! -x "$HOME/.nix-profile/bin/bun" ]] || [[ "$("$HOME/.nix-profile/bin/bun" --version 2>/dev/null || true)" != "$expected_bun_version" ]]; then
+      "$nix_bin" profile remove '.*bun.*' 2>/dev/null || true
+      "$nix_bin" profile add "$active_bun_store"
+    fi
+  fi
+
+  install_nix_dev_shell_block
+}
+
+# Main flow runs only when setup is executed directly: .agents/resume sources this
+# file to reuse the dotfile-hook installers after Amp's orb bootstrap rewrites the
+# shell profiles.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  step "Ensure Nix with flakes" ensure_nix
+  step "Install and allow direnv + nix-direnv" ensure_direnv
+
+  # Activate the cached Nix devShell in this setup process so subsequent commands
+  # use the flake's pinned Bun and host tools without re-evaluating the flake.
+  start_s="$(date +%s)"
+  echo "[setup] ==> Activate Nix devShell (pinned Bun 1.4.5)"
+  eval "$(DIRENV_LOG_FORMAT= "$HOME/.nix-profile/bin/direnv" export bash)"
+  if [[ -z "${IN_NIX_SHELL:-}" ]]; then
+    nix_bin="$(command -v nix)"
+    eval "$("$nix_bin" print-dev-env --option warn-dirty false "$repo_root")"
+  fi
+  echo "[setup] Active bun: $(command -v bun) ($(bun --version))"
+  end_s="$(date +%s)"
+  echo "[setup] <== Activate Nix devShell ($((end_s - start_s))s)"
+
+  step "Persist Nix devShell and pinned Bun in shell profiles" persist_nix_dev_env
+  step "Install workspace dependencies from bun.lock" bun install --frozen-lockfile
+  step "Build workspace packages and declarations" bun run build
+
+  echo "[setup] Complete."
 fi
-echo "[setup] Active bun: $(command -v bun) ($(bun --version))"
-end_s="$(date +%s)"
-echo "[setup] <== Activate Nix devShell ($((end_s - start_s))s)"
-
-step "Persist Nix devShell and pinned Bun in shell profiles" persist_nix_dev_env
-step "Install workspace dependencies from bun.lock" bun install --frozen-lockfile
-step "Build workspace packages and declarations" bun run build
-
-echo "[setup] Complete."

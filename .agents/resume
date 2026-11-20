@@ -17,6 +17,15 @@ if ! command -v nix >/dev/null 2>&1; then
   exit 1
 fi
 
+# Amp's orb bootstrap rewrites ~/.bashrc and ~/.bash_profile after setup runs on a
+# fresh orb, dropping the hooks setup installed there. Re-apply just those hooks;
+# sourcing setup is safe because its main flow only runs when it is executed directly.
+# shellcheck disable=SC1091
+source "$repo_root/.agents/setup"
+install_direnv_hook_block
+install_nix_dev_shell_block
+echo "[resume] Re-applied direnv and Nix dev shell hooks"
+
 if command -v direnv >/dev/null 2>&1 && [[ -f "$repo_root/.envrc" ]]; then
   direnv allow "$repo_root"
 fi

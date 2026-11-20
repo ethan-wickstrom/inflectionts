@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# bun run resolves the workspace's node_modules from the cwd, so anchor to the
+# repository root before dispatching; editors and tools may spawn this shim from
+# anywhere.
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
 if [[ -n "${EFFECT_TSGO_TSDK_DIR:-}" && -x "${EFFECT_TSGO_TSDK_DIR}/tsc" ]]; then
   exec "${EFFECT_TSGO_TSDK_DIR}/tsc" "$@"
 fi
