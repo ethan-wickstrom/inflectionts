@@ -1,4 +1,5 @@
-import { Option } from "effect"
+import * as Option from "effect/Option"
+
 import {
   allClassical,
   ComparisonResult,
@@ -120,7 +121,11 @@ const COMPARE_STEM_ENDINGS: ReadonlyArray<readonly [string, string, string]> = [
   [".{2,}[yia]n", "xes", "ges"]
 ]
 
-function handleLongCompounds(words: ParsedWords, count: 1 | 2, state: InflectorState): string | undefined {
+function handleLongCompounds(
+  words: ParsedWords,
+  count: 1 | 2,
+  state: InflectorState
+): string | undefined {
   const tokens = words.split
   for (let i = 0; i <= tokens.length - 2; i++) {
     const cand = tokens[i]
@@ -227,7 +232,12 @@ export function plnoun(word: string, count: CountInput, state: InflectorState): 
     return [plnoun(words.first, undefined, state), ...words.split.slice(1)].join(" ")
   }
 
-  const hyphenPrep = handlePrepositionalPhrase(words.lowered, (part) => plnoun(part, 2, state), "-", Data.pl_prep_set)
+  const hyphenPrep = handlePrepositionalPhrase(
+    words.lowered,
+    (part) => plnoun(part, 2, state),
+    "-",
+    Data.pl_prep_set
+  )
   if (hyphenPrep !== undefined) {
     return hyphenPrep
   }
@@ -240,7 +250,11 @@ export function plnoun(word: string, count: CountInput, state: InflectorState): 
         const prefix = words.lowered.slice(0, pk)
         if (words.lowered.length >= pk && prepSet.has(prefix)) {
           const toks = words.split
-          if (toks.length === 2 && toks[0]?.toLowerCase() === prefix && toks[1]?.toLowerCase() === suffix) {
+          if (
+            toks.length === 2 &&
+            toks[0]?.toLowerCase() === prefix &&
+            toks[1]?.toLowerCase() === suffix
+          ) {
             const replacement = Data.pl_pron_acc[suffix]
             if (replacement !== undefined) {
               return words.lowered.slice(0, -k) + replacement
@@ -441,7 +455,11 @@ export function plnoun(word: string, count: CountInput, state: InflectorState): 
   return `${word}s`
 }
 
-export function plSpecialVerb(word: string, count: CountInput, state: InflectorState): string | undefined {
+export function plSpecialVerb(
+  word: string,
+  count: CountInput,
+  state: InflectorState
+): string | undefined {
   if (state.classical.zero && count !== undefined && count !== null) {
     if (PL_COUNT_ZERO.has(formatCountValue(count).toLowerCase())) {
       return undefined
@@ -494,7 +512,13 @@ export function plSpecialVerb(word: string, count: CountInput, state: InflectorS
 
   const last4 = words.lowered.slice(-4)
   const last3 = words.lowered.slice(-3)
-  if (last4 === "ches" || last4 === "shes" || last4 === "zzes" || last4 === "sses" || last3 === "xes") {
+  if (
+    last4 === "ches" ||
+    last4 === "shes" ||
+    last4 === "zzes" ||
+    last4 === "sses" ||
+    last3 === "xes"
+  ) {
     return word.slice(0, -2)
   }
 
@@ -543,7 +567,11 @@ export function plGeneralVerb(word: string, count: CountInput, state: InflectorS
   return word
 }
 
-export function plSpecialAdjective(word: string, count: CountInput, state: InflectorState): string | undefined {
+export function plSpecialAdjective(
+  word: string,
+  count: CountInput,
+  state: InflectorState
+): string | undefined {
   const effectiveCount = getCount(count, state)
   if (effectiveCount === 1) {
     return word
@@ -580,7 +608,12 @@ export function plSpecialAdjective(word: string, count: CountInput, state: Infle
   return undefined
 }
 
-export function sinoun(word: string, count: CountInput, gender: Gender, state: InflectorState): Option.Option<string> {
+export function sinoun(
+  word: string,
+  count: CountInput,
+  gender: Gender,
+  state: InflectorState
+): Option.Option<string> {
   const effectiveCount = getCount(count, state)
   if (effectiveCount === 2) {
     return Option.some(word)
@@ -668,7 +701,11 @@ export function sinoun(word: string, count: CountInput, gender: Gender, state: I
         const prefix = words.lowered.slice(0, pk)
         if (words.lowered.length >= pk && prepSet.has(prefix)) {
           const toks = words.split
-          if (toks.length === 2 && toks[0]?.toLowerCase() === prefix && toks[1]?.toLowerCase() === suffix) {
+          if (
+            toks.length === 2 &&
+            toks[0]?.toLowerCase() === prefix &&
+            toks[1]?.toLowerCase() === suffix
+          ) {
             const singPron = Data.getSiPron("acc", suffix, gender)
             if (singPron !== undefined) {
               return Option.some(words.lowered.slice(0, -k) + singPron)
@@ -804,7 +841,11 @@ export function sinoun(word: string, count: CountInput, gender: Gender, state: I
   }
 
   // oes -> oe
-  if (last5 === "shoes" || Data.si_sb_oes_oe_case_set.has(word) || Data.si_sb_oes_oe_set.has(loweredLast)) {
+  if (
+    last5 === "shoes" ||
+    Data.si_sb_oes_oe_case_set.has(word) ||
+    Data.si_sb_oes_oe_set.has(loweredLast)
+  ) {
     return Option.some(word.slice(0, -1))
   }
 
@@ -871,7 +912,10 @@ export function sinoun(word: string, count: CountInput, gender: Gender, state: I
   // ...y
   const last2 = words.lowered.slice(-2)
   if (last2 === "ys") {
-    if (words.lowered.length > 2 && VOWELS_SET.has(words.lowered.charAt(words.lowered.length - 3))) {
+    if (
+      words.lowered.length > 2 &&
+      VOWELS_SET.has(words.lowered.charAt(words.lowered.length - 3))
+    ) {
       return Option.some(word.slice(0, -1))
     }
     if (state.classical.names && firstChar === firstChar.toUpperCase()) {
@@ -891,7 +935,13 @@ export function sinoun(word: string, count: CountInput, gender: Gender, state: I
     if (matchesBysizeSuffix(words.lowered, Data.si_sb_U_o_os_bysize)) {
       return Option.some(word.slice(0, -1))
     }
-    if (last3 === "aos" || last3 === "eos" || last3 === "ios" || last3 === "oos" || last3 === "uos") {
+    if (
+      last3 === "aos" ||
+      last3 === "eos" ||
+      last3 === "ios" ||
+      last3 === "oos" ||
+      last3 === "uos"
+    ) {
       return Option.some(word.slice(0, -1))
     }
   }
@@ -923,7 +973,9 @@ export function pluralWord(text: string, count: CountInput, state: InflectorStat
     return text
   }
   const inflected =
-    plSpecialAdjective(word, count, state) ?? plSpecialVerb(word, count, state) ?? plnoun(word, count, state)
+    plSpecialAdjective(word, count, state) ??
+    plSpecialVerb(word, count, state) ??
+    plnoun(word, count, state)
   return `${pre}${postprocess(word, inflected, state)}${post}`
 }
 
@@ -963,7 +1015,10 @@ export function singularNounWord(
   if (word === "") {
     return Option.some(text)
   }
-  return Option.map(sinoun(word, count, gender, state), (sing) => `${pre}${postprocess(word, sing, state)}${post}`)
+  return Option.map(
+    sinoun(word, count, gender, state),
+    (sing) => `${pre}${postprocess(word, sing, state)}${post}`
+  )
 }
 
 export function presentParticipleWord(word: string, state: InflectorState): string {
@@ -1000,9 +1055,15 @@ export function plCheckPluralsNoun(word1: string, word2: string): boolean {
 }
 
 export function plCheckPluralsAdj(word1: string, word2: string): boolean {
-  const word1a = word1.endsWith("'s") || word1.endsWith("'") ? word1.slice(0, word1.lastIndexOf("'")) : ""
-  const word2a = word2.endsWith("'s") || word2.endsWith("'") ? word2.slice(0, word2.lastIndexOf("'")) : ""
-  return word1a !== "" && word2a !== "" && (plCheckPluralsNoun(word1a, word2a) || plCheckPluralsNoun(word2a, word1a))
+  const word1a =
+    word1.endsWith("'s") || word1.endsWith("'") ? word1.slice(0, word1.lastIndexOf("'")) : ""
+  const word2a =
+    word2.endsWith("'s") || word2.endsWith("'") ? word2.slice(0, word2.lastIndexOf("'")) : ""
+  return (
+    word1a !== "" &&
+    word2a !== "" &&
+    (plCheckPluralsNoun(word1a, word2a) || plCheckPluralsNoun(word2a, word1a))
+  )
 }
 
 type PluralMode = "all" | "noun" | "verb" | "adj"
@@ -1020,7 +1081,12 @@ function applyPluralMode(mode: PluralMode, word: string, state: InflectorState):
   }
 }
 
-function plEqual(word1: string, word2: string, mode: PluralMode, state: InflectorState): ComparisonResult {
+function plEqual(
+  word1: string,
+  word2: string,
+  mode: PluralMode,
+  state: InflectorState
+): ComparisonResult {
   for (const classical of [allClassical, noClassical]) {
     const tempState: InflectorState = { ...state, classical }
     if (word1 === word2) {
@@ -1045,8 +1111,14 @@ function plEqual(word1: string, word2: string, mode: PluralMode, state: Inflecto
   return ComparisonResult.cases.NotEqual.make({})
 }
 
-export function compareWords(word1: string, word2: string, state: InflectorState): ComparisonResult {
-  for (const mode of ["noun", "verb", "adj"] as const) {
+const COMPARE_MODES: ReadonlyArray<PluralMode> = ["noun", "verb", "adj"]
+
+export function compareWords(
+  word1: string,
+  word2: string,
+  state: InflectorState
+): ComparisonResult {
+  for (const mode of COMPARE_MODES) {
     const result = plEqual(word1, word2, mode, state)
     if (result._tag !== "NotEqual") {
       return result
@@ -1055,14 +1127,26 @@ export function compareWords(word1: string, word2: string, state: InflectorState
   return ComparisonResult.cases.NotEqual.make({})
 }
 
-export function compareNounWords(word1: string, word2: string, state: InflectorState): ComparisonResult {
+export function compareNounWords(
+  word1: string,
+  word2: string,
+  state: InflectorState
+): ComparisonResult {
   return plEqual(word1, word2, "noun", state)
 }
 
-export function compareVerbWords(word1: string, word2: string, state: InflectorState): ComparisonResult {
+export function compareVerbWords(
+  word1: string,
+  word2: string,
+  state: InflectorState
+): ComparisonResult {
   return plEqual(word1, word2, "verb", state)
 }
 
-export function compareAdjWords(word1: string, word2: string, state: InflectorState): ComparisonResult {
+export function compareAdjWords(
+  word1: string,
+  word2: string,
+  state: InflectorState
+): ComparisonResult {
   return plEqual(word1, word2, "adj", state)
 }

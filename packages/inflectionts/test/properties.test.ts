@@ -1,5 +1,8 @@
 import { describe, test } from "bun:test"
-import { Arbitrary, Effect, Schema } from "effect"
+
+import * as Arbitrary from "effect/Arbitrary"
+import * as Effect from "effect/Effect"
+import * as Schema from "effect/Schema"
 import {
   a,
   compare,
@@ -17,13 +20,17 @@ import {
   pluralNoun,
   pluralVerb
 } from "inflectionts"
+
 import { checkInflectorProperty } from "./helpers.ts"
 
 const AlphaWord = Schema.String.check(Schema.isPattern(/^[a-z]{1,12}$/))
 const Padding = Schema.String.check(Schema.isPattern(/^ {0,3}$/))
 const BoundedInt = Schema.Int.check(Schema.isBetween({ minimum: -100_000, maximum: 100_000 }))
 const NonNegSmallInt = Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 500 }))
-const NonEmptyWordArray = Schema.Array(AlphaWord).check(Schema.isMinLength(1), Schema.isMaxLength(6))
+const NonEmptyWordArray = Schema.Array(AlphaWord).check(
+  Schema.isMinLength(1),
+  Schema.isMaxLength(6)
+)
 
 describe("Effect Arbitrary property tests", () => {
   test("plural/a/no preserve leading and trailing spaces", async () => {
@@ -135,7 +142,10 @@ describe("Effect Arbitrary property tests", () => {
 
   test("numberToCurrency always formats exact cents fraction", async () => {
     const arb = Arbitrary.schema(
-      Schema.Tuple([NonNegSmallInt, Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 99 }))])
+      Schema.Tuple([
+        NonNegSmallInt,
+        Schema.Int.check(Schema.isBetween({ minimum: 0, maximum: 99 }))
+      ])
     )
     await checkInflectorProperty(
       arb,

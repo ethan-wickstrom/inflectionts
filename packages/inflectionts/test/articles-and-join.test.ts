@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test"
+
 import { Effect, Exit } from "effect"
 import {
   a,
@@ -16,6 +17,7 @@ import {
   pluralNoun,
   pluralVerb
 } from "inflectionts"
+
 import { runInflector, runInflectorExit } from "./helpers.ts"
 
 describe("indefinite articles (a / an)", () => {
@@ -75,12 +77,13 @@ describe("indefinite articles (a / an)", () => {
         expect(yield* a("cat", 1)).toBe("a cat")
         expect(yield* a("cat", 2)).toBe("2 cat")
 
-        for (const [word, expected] of [
+        const oneWordCases: ReadonlyArray<readonly [string, string]> = [
           ["cat", "a cat"],
           ["aardvark", "an aardvark"],
           ["ewe", "a ewe"],
           ["hour", "an hour"]
-        ] as const) {
+        ]
+        for (const [word, expected] of oneWordCases) {
           const oneWord = yield* numberToWords(1, { one: "a" })
           expect(yield* a(`${oneWord} ${word}`)).toBe(expected)
         }
@@ -134,13 +137,14 @@ describe("no and num", () => {
         expect(out2).toBe("we saw 1 saw")
 
         yield* num(2, false)
-        expect(`${yield* pluralAdj("This")}${yield* pluralNoun(" error")}${yield* pluralVerb(" was")}`).toBe(
-          "These errors were"
-        )
+        expect(
+          `${yield* pluralAdj("This")}${yield* pluralNoun(" error")}${yield* pluralVerb(" was")}`
+        ).toBe("These errors were")
       })
     )
 
-    for (const bad of ["text", Number.POSITIVE_INFINITY, Number.NaN] as const) {
+    const badCounts: ReadonlyArray<number | string> = ["text", Number.POSITIVE_INFINITY, Number.NaN]
+    for (const bad of badCounts) {
       const exit = await runInflectorExit(num(bad))
       expect(Exit.isFailure(exit)).toBe(true)
       if (Exit.isFailure(exit)) {
@@ -167,12 +171,18 @@ describe("join", () => {
         expect(yield* join(["apple", "banana"])).toBe("apple and banana")
         expect(yield* join(["apple", "banana"], { finalSep: "" })).toBe("apple and banana")
         expect(yield* join(["apple", "banana"], { finalSep: "...", conj: "" })).toBe("apple banana")
-        expect(yield* join(["apple", "banana"], { finalSep: "...", conj: "", conjSpaced: false })).toBe("applebanana")
+        expect(
+          yield* join(["apple", "banana"], { finalSep: "...", conj: "", conjSpaced: false })
+        ).toBe("applebanana")
         expect(yield* join(["apple", "banana"], { conj: "or" })).toBe("apple or banana")
         expect(yield* join(["apple", "banana"], { conj: " or " })).toBe("apple  or  banana")
         expect(yield* join(["apple", "banana"], { conj: "&" })).toBe("apple & banana")
-        expect(yield* join(["apple", "banana"], { conj: "&", conjSpaced: false })).toBe("apple&banana")
-        expect(yield* join(["apple", "banana"], { conj: "& ", conjSpaced: false })).toBe("apple& banana")
+        expect(yield* join(["apple", "banana"], { conj: "&", conjSpaced: false })).toBe(
+          "apple&banana"
+        )
+        expect(yield* join(["apple", "banana"], { conj: "& ", conjSpaced: false })).toBe(
+          "apple& banana"
+        )
 
         const words = ["apple", "banana", "carrot"]
         expect(yield* join(words)).toBe("apple, banana, and carrot")
@@ -181,9 +191,9 @@ describe("join", () => {
         expect(yield* join(words, { finalSep: "...", conj: "" })).toBe("apple, banana... carrot")
         expect(yield* join(words, { conj: "or" })).toBe("apple, banana, or carrot")
         expect(yield* join(words, { finalSep: ";" })).toBe("apple, banana; and carrot")
-        expect(yield* join(words, { sep: "/", sepSpaced: false, conj: "", conjSpaced: false })).toBe(
-          "apple/banana/carrot"
-        )
+        expect(
+          yield* join(words, { sep: "/", sepSpaced: false, conj: "", conjSpaced: false })
+        ).toBe("apple/banana/carrot")
         expect(yield* join(words, { conj: " or " })).toBe("apple, banana,  or  carrot")
         expect(yield* join(words, { conj: "+" })).toBe("apple, banana, + carrot")
         expect(yield* join(words, { conj: "&", conjSpaced: false })).toBe("apple, banana,&carrot")
@@ -192,11 +202,17 @@ describe("join", () => {
         const commaWords = ["apple,fuji", "banana", "carrot"]
         expect(yield* join(commaWords)).toBe("apple,fuji; banana; and carrot")
         expect(yield* join(commaWords, { finalSep: "" })).toBe("apple,fuji; banana and carrot")
-        expect(yield* join(commaWords, { finalSep: "..." })).toBe("apple,fuji; banana... and carrot")
-        expect(yield* join(commaWords, { finalSep: "...", conj: "" })).toBe("apple,fuji; banana... carrot")
+        expect(yield* join(commaWords, { finalSep: "..." })).toBe(
+          "apple,fuji; banana... and carrot"
+        )
+        expect(yield* join(commaWords, { finalSep: "...", conj: "" })).toBe(
+          "apple,fuji; banana... carrot"
+        )
         expect(yield* join(commaWords, { conj: "or" })).toBe("apple,fuji; banana; or carrot")
         expect(yield* join(["apple", "1,000", "carrot"])).toBe("apple; 1,000; and carrot")
-        expect(yield* join(["apple", "1,000", "carrot"], { sep: "," })).toBe("apple, 1,000, and carrot")
+        expect(yield* join(["apple", "1,000", "carrot"], { sep: "," })).toBe(
+          "apple, 1,000, and carrot"
+        )
       })
     )
   })

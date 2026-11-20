@@ -7,12 +7,17 @@ Effect v4 TypeScript port of [`jaraco/inflect`](https://github.com/jaraco/inflec
 Provide `Inflector.layer` (or `Inflector.layerWith(initialState)`) at your application boundary. Each layer provision owns an isolated `Ref<InflectorState>`, so classical flags, pronoun gender, persistent `num` counts, and user-defined rules never leak across concurrent programs or tests.
 
 ```ts
-import { Effect, Option } from "effect"
+import * as Effect from "effect/Effect"
+import * as Option from "effect/Option"
 import {
   a,
+  applyClassical,
+  applyDefNoun,
+  applyGender,
   classical,
   compare,
   comparisonCode,
+  defaultState,
   defnoun,
   inflect,
   Inflector,
@@ -60,15 +65,24 @@ const program = Effect.gen(function* () {
     urls
   }
 }).pipe(Effect.provide(Inflector.layer))
+
+// Pure dual state combinators support both data-first and pipeline composition:
+const customState = Effect.succeed(defaultState).pipe(
+  Effect.flatMap(applyClassical({ ancient: true })),
+  Effect.flatMap(applyGender("feminine")),
+  Effect.flatMap(applyDefNoun("URL", "URLs", { case: "preserve" }))
+)
 ```
 
 ## Public API
 
+Package exports are exposed from `"inflectionts"` and subpath modules `"inflectionts/Inflector"`, `"inflectionts/Schema"`, and `"inflectionts/Errors"` (`./internal/*` is blocked).
+
 ### Service & Layers
 
-- `Inflector`: `Context.Service<Inflector, InflectorService>()("inflectionts/Inflector")`
+- `Inflector`: `Context.Service<Inflector, InflectorService>()("inflectionts/Inflector")` (`TypeId = "~inflectionts/Inflector"`, `isInflectorService`)
 - `Inflector.layer`: `Layer.Layer<Inflector>` with default state (`defaultState`)
-- `Inflector.layerWith(initialState)`: `Layer.Layer<Inflector>` with custom `InflectorState`
+- `Inflector.layerWith(initialState)`: `Layer.Layer<Inflector>` with custom `InflectorState` (`StateTypeId = "~inflectionts/InflectorState"`, `isInflectorState`)
 - `makeInflector(initialState?)`: `Effect.Effect<InflectorService>`
 
 ### Inflection Operations (require `Inflector`)
@@ -92,7 +106,7 @@ const program = Effect.gen(function* () {
 
 - Schemas: `Word`, `Gender`, `CaseMode`, `ClassicalMode`, `ClassicalConfig`, `ComparisonResult`, `ComparisonCode`, `NumberGroup`
 - Errors (`Schema.TaggedError`): `InvalidWordError`, `UnknownClassicalModeError`, `BadNumValueError`, `BadChunkingOptionError`, `NumOutOfRangeError`, `BadUserDefinedPatternError`, `BadGenderError`, `InflectTemplateError`
-- Pure helpers: `comparisonCode(result)`, `enclose(s)`, `joinstem(cutpoint, words)`, `bysize(words)`, `partitionWord(text)`, `postprocess(orig, inflected, state)`, `udMatch(word, entries)`, plus immutable state transitions (`applyClassical`, `applyGender`, `applyNum`, `applyDefNoun`, `applyDefVerb`, `applyDefAdj`, `applyDefArticle`)
+- Pure helpers & dual state combinators: `comparisonCode(result)`, `enclose(s)`, `joinstem(cutpoint, words)`, `bysize(words)`, `partitionWord(text)`, `postprocess(orig, inflected, state)`, `udMatch(word, entries)`, `applyClassical`, `applyGender`, `applyNum`, `applyDefNoun`, `applyDefVerb`, `applyDefAdj`, `applyDefArticle`
 
 ## Toolchain & Verification
 

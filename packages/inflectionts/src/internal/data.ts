@@ -1,4 +1,6 @@
 // Linguistic wordlists and inflection tables ported verbatim from jaraco/inflect.
+import * as Predicate from "effect/Predicate"
+
 import type { Gender } from "../Schema.ts"
 import { bysize, enclose, joinstem, makePlSiLists } from "./helpers.ts"
 
@@ -109,7 +111,13 @@ export const pl_sb_C_a_ata_list: ReadonlyArray<string> = [
   "pragma"
 ]
 
-export const pl_sb_U_a_ae_list: ReadonlyArray<string> = ["alumna", "alga", "vertebra", "persona", "vita"]
+export const pl_sb_U_a_ae_list: ReadonlyArray<string> = [
+  "alumna",
+  "alga",
+  "vertebra",
+  "persona",
+  "vita"
+]
 
 export const pl_sb_C_a_ae_list: ReadonlyArray<string> = [
   "amoeba",
@@ -240,7 +248,14 @@ export const pl_sb_C_o_i: ReadonlyArray<string> = [
   "virtuoso"
 ]
 
-export const pl_sb_U_o_os_complete: ReadonlyArray<string> = ["ISO", "NATO", "NCO", "NGO", "ado", "oto"]
+export const pl_sb_U_o_os_complete: ReadonlyArray<string> = [
+  "ISO",
+  "NATO",
+  "NCO",
+  "NGO",
+  "ado",
+  "oto"
+]
 
 export const pl_sb_U_o_os_endings: ReadonlyArray<string> = [
   "aficionado",
@@ -508,7 +523,12 @@ export const pl_sb_U_man_mans_caps_list: ReadonlyArray<string> = [
   "Yuman"
 ]
 
-export const pl_sb_U_louse_lice_list: ReadonlyArray<string> = ["booklouse", "grapelouse", "louse", "woodlouse"]
+export const pl_sb_U_louse_lice_list: ReadonlyArray<string> = [
+  "booklouse",
+  "grapelouse",
+  "louse",
+  "woodlouse"
+]
 
 export const pl_sb_uninflected_s_complete: ReadonlyArray<string> = [
   "breeches",
@@ -733,7 +753,13 @@ export const pl_sb_singular_s_complete: ReadonlyArray<string> = [
 
 export const si_sb_ois_oi_case: ReadonlyArray<string> = ["Bolshois", "Hanois"]
 
-export const si_sb_uses_use_case: ReadonlyArray<string> = ["Betelgeuses", "Duses", "Meuses", "Syracuses", "Toulouses"]
+export const si_sb_uses_use_case: ReadonlyArray<string> = [
+  "Betelgeuses",
+  "Duses",
+  "Meuses",
+  "Syracuses",
+  "Toulouses"
+]
 
 export const si_sb_uses_use: ReadonlyArray<string> = [
   "abuses",
@@ -1076,7 +1102,12 @@ export const si_sb_ches_che: ReadonlyArray<string> = [
 
 export const si_sb_xes_xe: ReadonlyArray<string> = ["annexes", "axes", "deluxes", "pickaxes"]
 
-export const si_sb_sses_sse_case: ReadonlyArray<string> = ["Hesses", "Jesses", "Larousses", "Matisses"]
+export const si_sb_sses_sse_case: ReadonlyArray<string> = [
+  "Hesses",
+  "Jesses",
+  "Larousses",
+  "Matisses"
+]
 
 export const si_sb_sses_sse: ReadonlyArray<string> = [
   "bouillabaisses",
@@ -1312,7 +1343,14 @@ export const plverb_irregular_non_pres: ReadonlyArray<string> = [
   "should"
 ]
 
-export const pl_v_oes_oe: ReadonlyArray<string> = ["canoes", "floes", "oboes", "roes", "throes", "woes"]
+export const pl_v_oes_oe: ReadonlyArray<string> = [
+  "canoes",
+  "floes",
+  "oboes",
+  "roes",
+  "throes",
+  "woes"
+]
 
 export const pl_v_oes_oe_endings_size4: ReadonlyArray<string> = ["hoes", "toes"]
 
@@ -1356,8 +1394,10 @@ export const pl_sb_irregular_values: ReadonlySet<string> = new Set([
 ])
 
 export const si_sb_irregular: ReadonlyMap<string, string> = invertIrregular(pl_sb_irregular)
-export const si_sb_irregular_caps: ReadonlyMap<string, string> = invertIrregular(pl_sb_irregular_caps)
-export const si_sb_irregular_compound: ReadonlyMap<string, string> = invertIrregular(pl_sb_irregular_compound)
+export const si_sb_irregular_caps: ReadonlyMap<string, string> =
+  invertIrregular(pl_sb_irregular_caps)
+export const si_sb_irregular_compound: ReadonlyMap<string, string> =
+  invertIrregular(pl_sb_irregular_compound)
 
 // Derived bysize maps, sets, and regex stems
 export const pl_sb_z_zes_bysize = bysize(pl_sb_z_zes_list)
@@ -1367,7 +1407,10 @@ export const pl_sb_C_is_ides = joinstem(-2, [
   ...pl_sb_C_is_ides_complete,
   ...pl_sb_C_is_ides_endings.map((w) => `.*${w}`)
 ])
-export const pl_sb_C_is_ides_list: ReadonlyArray<string> = [...pl_sb_C_is_ides_complete, ...pl_sb_C_is_ides_endings]
+export const pl_sb_C_is_ides_list: ReadonlyArray<string> = [
+  ...pl_sb_C_is_ides_complete,
+  ...pl_sb_C_is_ides_endings
+]
 const cIsIdes = makePlSiLists(pl_sb_C_is_ides_list, "ides", 2, false)
 export const si_sb_C_is_ides_bysize = cIsIdes.siBysize
 export const pl_sb_C_is_ides_bysize = cIsIdes.plBysize
@@ -1426,7 +1469,9 @@ export const si_sb_C_o_i_bysize = bysize(pl_sb_C_o_i.map((w) => `${w.slice(0, -1
 export const pl_sb_C_o_i_stems = joinstem(-1, pl_sb_C_o_i)
 
 export const pl_sb_U_o_os_complete_set: ReadonlySet<string> = new Set(pl_sb_U_o_os_complete)
-export const si_sb_U_o_os_complete_set: ReadonlySet<string> = new Set(pl_sb_U_o_os_complete.map((w) => `${w}s`))
+export const si_sb_U_o_os_complete_set: ReadonlySet<string> = new Set(
+  pl_sb_U_o_os_complete.map((w) => `${w}s`)
+)
 export const pl_sb_U_o_os_bysize = bysize(pl_sb_U_o_os_endings)
 export const si_sb_U_o_os_bysize = bysize(pl_sb_U_o_os_endings.map((w) => `${w}s`))
 
@@ -1479,22 +1524,34 @@ export const pl_sb_uninflected_s: ReadonlyArray<string> = [
   ...pl_sb_uninflected_s_endings.map((w) => `.*${w}`)
 ]
 export const pl_sb_uninflected_herd_set: ReadonlySet<string> = new Set(pl_sb_uninflected_herd)
-export const pl_sb_uninflected_complete_set: ReadonlySet<string> = new Set(pl_sb_uninflected_complete)
+export const pl_sb_uninflected_complete_set: ReadonlySet<string> = new Set(
+  pl_sb_uninflected_complete
+)
 export const pl_sb_uninflected_caps_set: ReadonlySet<string> = new Set(pl_sb_uninflected_caps)
 export const pl_sb_uninflected_bysize = bysize(pl_sb_uninflected_endings)
 
 export const pl_sb_singular_s_complete_set: ReadonlySet<string> = new Set(pl_sb_singular_s_complete)
-export const pl_sb_singular_s_endings: ReadonlyArray<string> = ["ss", "us", ...pl_sb_C_is_ides_endings]
+export const pl_sb_singular_s_endings: ReadonlyArray<string> = [
+  "ss",
+  "us",
+  ...pl_sb_C_is_ides_endings
+]
 export const pl_sb_singular_s_bysize = bysize(pl_sb_singular_s_endings)
 
 export const si_sb_singular_s_complete_set: ReadonlySet<string> = new Set(
   pl_sb_singular_s_complete.map((w) => `${w}es`)
 )
-export const si_sb_singular_s_endings: ReadonlyArray<string> = pl_sb_singular_s_endings.map((w) => `${w}es`)
+export const si_sb_singular_s_endings: ReadonlyArray<string> = pl_sb_singular_s_endings.map(
+  (w) => `${w}es`
+)
 export const si_sb_singular_s_bysize = bysize(si_sb_singular_s_endings)
 
 export const pl_sb_singular_s = enclose(
-  [...pl_sb_singular_s_complete, ...pl_sb_singular_s_endings.map((w) => `.*${w}`), "[A-Z].*es"].join("|")
+  [
+    ...pl_sb_singular_s_complete,
+    ...pl_sb_singular_s_endings.map((w) => `.*${w}`),
+    "[A-Z].*es"
+  ].join("|")
 )
 
 export const si_sb_ois_oi_case_set: ReadonlySet<string> = new Set(si_sb_ois_oi_case)
@@ -1610,12 +1667,16 @@ function buildSiPron(): {
 export const si_pron = buildSiPron()
 export const si_pron_acc_keys_bysize = bysize(si_pron.acc.keys())
 
-export function getSiPron(theCase: "nom" | "acc", word: string, gender: Gender): string | undefined {
+export function getSiPron(
+  theCase: "nom" | "acc",
+  word: string,
+  gender: Gender
+): string | undefined {
   const entry = si_pron[theCase].get(word)
   if (entry === undefined) {
     return undefined
   }
-  if (typeof entry === "string") {
+  if (Predicate.isString(entry)) {
     return entry
   }
   return entry[gender]
@@ -1632,8 +1693,14 @@ export const pl_v_oes_oe_set: ReadonlySet<string> = new Set(pl_v_oes_oe)
 export const pl_v_oes_oe_endings_size4_set: ReadonlySet<string> = new Set(pl_v_oes_oe_endings_size4)
 export const pl_v_oes_oe_endings_size5_set: ReadonlySet<string> = new Set(pl_v_oes_oe_endings_size5)
 
-export const pl_adj_special_keys = new RegExp(`^(${enclose(Object.keys(pl_adj_special).join("|"))})$`, "i")
-export const pl_adj_poss_keys = new RegExp(`^(${enclose(Object.keys(pl_adj_poss).join("|"))})$`, "i")
+export const pl_adj_special_keys = new RegExp(
+  `^(${enclose(Object.keys(pl_adj_special).join("|"))})$`,
+  "i"
+)
+export const pl_adj_poss_keys = new RegExp(
+  `^(${enclose(Object.keys(pl_adj_poss).join("|"))})$`,
+  "i"
+)
 
 // Indefinite article patterns (A_abbrev has Python re.VERBOSE whitespace stripped)
 export const A_abbrev =
@@ -1674,7 +1741,18 @@ export const ordinal_map: Readonly<Record<string, string>> = {
 }
 export const ordinal_suff = new RegExp(`(${Object.keys(ordinal_map).join("|")})$`)
 
-export const unit: ReadonlyArray<string> = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+export const unit: ReadonlyArray<string> = [
+  "",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine"
+]
 export const teen: ReadonlyArray<string> = [
   "ten",
   "eleven",

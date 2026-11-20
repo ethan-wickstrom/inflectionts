@@ -1,8 +1,20 @@
-import { Effect, Predicate } from "effect"
+import * as Effect from "effect/Effect"
+import * as Predicate from "effect/Predicate"
+
 import { BadChunkingOptionError, BadNumValueError, NumOutOfRangeError } from "../Errors.ts"
-import type { JoinOptions, NumberInput, NumberToCurrencyOptions, NumberToWordsOptions } from "../Schema.ts"
+import type {
+  JoinOptions,
+  NumberInput,
+  NumberToCurrencyOptions,
+  NumberToWordsOptions
+} from "../Schema.ts"
 import * as Data from "./data.ts"
-import { expandScientificNotation, groupedFromRight, groupThousands, roundDecimalHalfUp } from "./helpers.ts"
+import {
+  expandScientificNotation,
+  groupedFromRight,
+  groupThousands,
+  roundDecimalHalfUp
+} from "./helpers.ts"
 
 const DIGIT_RE = /^\d/
 const INTEGER_STRING_RE = /^\s*[+-]?\d+\s*$/
@@ -125,7 +137,8 @@ const group3Sub = Effect.fnUntraced(function* (
   args: NumberArgs,
   input: string
 ): Effect.fn.Return<string, NumOutOfRangeError> {
-  const hunword = hundreds === 1 ? ` ${args.one}` : hundreds ? (Data.unit[hundreds] ?? "") : ` ${args.zero}`
+  const hunword =
+    hundreds === 1 ? ` ${args.one}` : hundreds ? (Data.unit[hundreds] ?? "") : ` ${args.zero}`
   let tenword: string
   if (tens) {
     tenword = yield* tenFn(tens, units, 0, input)
@@ -150,7 +163,13 @@ const renderGroup = Effect.fnUntraced(function* (
   if (part.length === 2) {
     return yield* group2Sub(Number(part.charAt(0)), Number(part.charAt(1)), args, input)
   }
-  return yield* group3Sub(Number(part.charAt(0)), Number(part.charAt(1)), Number(part.charAt(2)), args, input)
+  return yield* group3Sub(
+    Number(part.charAt(0)),
+    Number(part.charAt(1)),
+    Number(part.charAt(2)),
+    args,
+    input
+  )
 })
 
 const enword = Effect.fnUntraced(function* (
@@ -191,7 +210,14 @@ const enword = Effect.fnUntraced(function* (
     if (match === null) {
       break
     }
-    const replacement = yield* hundFn(Number(match[1]), Number(match[2]), Number(match[3]), millCount, args, origInput)
+    const replacement = yield* hundFn(
+      Number(match[1]),
+      Number(match[2]),
+      Number(match[3]),
+      millCount,
+      args,
+      origInput
+    )
     millCount += 1
     current = current.slice(0, match.index) + replacement + current.slice(match.index + 3)
   }
@@ -211,7 +237,11 @@ const enword = Effect.fnUntraced(function* (
   return current
 })
 
-function chunkNum(num: string, decimal: string | null, group: number): readonly [Array<string>, boolean] {
+function chunkNum(
+  num: string,
+  decimal: string | null,
+  group: number
+): readonly [Array<string>, boolean] {
   let chunks: Array<string>
   if (decimal !== null && decimal !== "") {
     if (group !== 0) {
@@ -240,7 +270,11 @@ function getSign(num: string): "" | "plus" | "minus" {
   return ""
 }
 
-function renderChunks(chunks: ReadonlyArray<string>, decimal: string | null, comma: string): string {
+function renderChunks(
+  chunks: ReadonlyArray<string>,
+  decimal: string | null,
+  comma: string
+): string {
   const firstItem = chunks[0]
   if (firstItem === undefined) {
     return ""
@@ -262,13 +296,19 @@ function renderChunks(chunks: ReadonlyArray<string>, decimal: string | null, com
   return out
 }
 
-export const ordinalValue = Effect.fnUntraced(function* (num: NumberInput): Effect.fn.Return<string, BadNumValueError> {
+export const ordinalValue = Effect.fnUntraced(function* (
+  num: NumberInput
+): Effect.fn.Return<string, BadNumValueError> {
   if (Predicate.isNumber(num) && !Number.isFinite(num)) {
-    return yield* new BadNumValueError({ input: String(num), message: "Ordinal requires a finite number" })
+    return yield* new BadNumValueError({
+      input: String(num),
+      message: "Ordinal requires a finite number"
+    })
   }
 
   const strNum = String(num)
-  const startsNumeric = DIGIT_RE.test(strNum) || (strNum.startsWith("-") && DIGIT_RE.test(strNum.slice(1)))
+  const startsNumeric =
+    DIGIT_RE.test(strNum) || (strNum.startsWith("-") && DIGIT_RE.test(strNum.slice(1)))
 
   if (!startsNumeric) {
     return subOrd(strNum)
@@ -286,14 +326,20 @@ export const ordinalValue = Effect.fnUntraced(function* (num: NumberInput): Effe
     } else {
       const beforeDot = strNum.slice(0, -1)
       if (!INTEGER_STRING_RE.test(beforeDot)) {
-        return yield* new BadNumValueError({ input: strNum, message: `Invalid numeric ordinal input: ${strNum}` })
+        return yield* new BadNumValueError({
+          input: strNum,
+          message: `Invalid numeric ordinal input: ${strNum}`
+        })
       }
       const parsed = BigInt(beforeDot.trim())
       absInt = parsed < 0n ? -parsed : parsed
     }
   } else {
     if (!INTEGER_STRING_RE.test(strNum)) {
-      return yield* new BadNumValueError({ input: strNum, message: `Invalid numeric ordinal input: ${strNum}` })
+      return yield* new BadNumValueError({
+        input: strNum,
+        message: `Invalid numeric ordinal input: ${strNum}`
+      })
     }
     const parsed = BigInt(strNum.trim())
     absInt = parsed < 0n ? -parsed : parsed
@@ -310,10 +356,14 @@ interface NormalizedNumberInput {
   readonly isNumeric: boolean
 }
 
-function normalizeNumberInput(num: NumberInput): Effect.Effect<NormalizedNumberInput, BadNumValueError> {
+function normalizeNumberInput(
+  num: NumberInput
+): Effect.Effect<NormalizedNumberInput, BadNumValueError> {
   if (Predicate.isNumber(num)) {
     if (!Number.isFinite(num)) {
-      return Effect.fail(new BadNumValueError({ input: String(num), message: "Expected a finite number" }))
+      return Effect.fail(
+        new BadNumValueError({ input: String(num), message: "Expected a finite number" })
+      )
     }
     const str = String(num)
     const expanded = str.includes("e") || str.includes("E") ? expandScientificNotation(str) : str
@@ -340,7 +390,9 @@ export const numberToWordsCore = Effect.fnUntraced(function* (
   const one = options?.one ?? "one"
   const rawDecimal = options?.decimal === undefined ? "point" : options.decimal
   const decimal: string | null =
-    rawDecimal === false || rawDecimal === 0 || rawDecimal === null || rawDecimal === "" ? null : rawDecimal
+    rawDecimal === false || rawDecimal === 0 || rawDecimal === null || rawDecimal === ""
+      ? null
+      : rawDecimal
   const threshold = options?.threshold
 
   const { raw } = yield* normalizeNumberInput(num)
@@ -350,7 +402,10 @@ export const numberToWordsCore = Effect.fnUntraced(function* (
   if (threshold !== undefined) {
     const numericVal = Number(current)
     if (Number.isNaN(numericVal)) {
-      return yield* new BadNumValueError({ input: current, message: `Invalid numeric value for threshold: ${current}` })
+      return yield* new BadNumValueError({
+        input: current,
+        message: `Invalid numeric value for threshold: ${current}`
+      })
     }
     if (numericVal > threshold) {
       const dotIdx = current.indexOf(".")
@@ -455,7 +510,10 @@ export const numberToCurrencyImpl = Effect.fnUntraced(function* (
   options?: NumberToCurrencyOptions
 ): Effect.fn.Return<string, BadNumValueError | NumOutOfRangeError> {
   if (Predicate.isNumber(num) && !Number.isFinite(num)) {
-    return yield* new BadNumValueError({ input: String(num), message: `Invalid currency amount: ${num}` })
+    return yield* new BadNumValueError({
+      input: String(num),
+      message: `Invalid currency amount: ${num}`
+    })
   }
   const str = String(num)
   const rounded = roundDecimalHalfUp(str, 2)
@@ -463,7 +521,9 @@ export const numberToCurrencyImpl = Effect.fnUntraced(function* (
     return yield* new BadNumValueError({ input: str, message: `Invalid currency amount: ${str}` })
   }
   const wholeStr = `${rounded.sign}${rounded.whole}`
-  const wholeWords = yield* numberToWordsCore(wholeStr, { andword: options?.andword ?? "and" }).pipe(
+  const wholeWords = yield* numberToWordsCore(wholeStr, {
+    andword: options?.andword ?? "and"
+  }).pipe(
     Effect.catchTag("BadChunkingOptionError", () =>
       // Unreachable because group defaults to 0
       Effect.die(new Error("Unexpected BadChunkingOptionError with default group 0"))
@@ -472,7 +532,10 @@ export const numberToCurrencyImpl = Effect.fnUntraced(function* (
   return `${wholeWords.text} and ${rounded.frac}/100`
 })
 
-export function joinWords(words: ReadonlyArray<string> | null | undefined, options?: JoinOptions): string {
+export function joinWords(
+  words: ReadonlyArray<string> | null | undefined,
+  options?: JoinOptions
+): string {
   if (words === null || words === undefined || words.length === 0) {
     return ""
   }

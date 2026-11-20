@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test"
-import { Effect, Exit, Option } from "effect"
+
+import * as Effect from "effect/Effect"
+import * as Exit from "effect/Exit"
+import * as Option from "effect/Option"
 import {
   allClassical,
+  applyClassical,
+  applyDefNoun,
+  applyGender,
   BadGenderError,
   BadUserDefinedPatternError,
   bysize,
@@ -15,12 +21,16 @@ import {
   defadj,
   defan,
   defaultClassical,
+  defaultState,
   defnoun,
   defverb,
   enclose,
   gender,
   getState,
+  Inflector,
   InvalidWordError,
+  isInflectorService,
+  isInflectorState,
   joinstem,
   no,
   noClassical,
@@ -32,9 +42,15 @@ import {
   postprocess,
   presentParticiple,
   singularNoun,
+  StateTypeId,
+  TypeId,
   udMatch,
   UnknownClassicalModeError
 } from "inflectionts"
+import { BadGenderError as SubpathBadGenderError } from "inflectionts/Errors"
+import { TypeId as SubpathTypeId } from "inflectionts/Inflector"
+import { StateTypeId as SubpathStateTypeId } from "inflectionts/Schema"
+
 import { runInflector, runInflectorExit } from "./helpers.ts"
 
 const INFLECTIONS_FIXTURE_URL = new URL("./fixtures/inflections.txt", import.meta.url)
@@ -114,7 +130,11 @@ describe("inflections.txt corpus", () => {
           const modPlural = (pipeIdx === -1 ? pluralPart : pluralPart.slice(0, pipeIdx)).trim()
           const classPlural = (pipeIdx === -1 ? pluralPart : pluralPart.slice(pipeIdx + 1)).trim()
 
-          const kind = comment.includes("verb") ? "verb" : comment.includes("noun") ? "noun" : "general"
+          const kind = comment.includes("verb")
+            ? "verb"
+            : comment.includes("noun")
+              ? "noun"
+              : "general"
 
           yield* classical({ all: false, names: false })
           const modVal =
@@ -149,7 +169,9 @@ describe("inflections.txt corpus", () => {
             const singMod = yield* singularNoun(modPlural, 1)
             const singClass = yield* singularNoun(classPlural, 1)
             expect(Option.getOrUndefined(singMod), `singularNoun('${modPlural}')`).toBe(singular)
-            expect(Option.getOrUndefined(singClass), `singularNoun('${classPlural}')`).toBe(singular)
+            expect(Option.getOrUndefined(singClass), `singularNoun('${classPlural}')`).toBe(
+              singular
+            )
           }
 
           checkedCount += 1
@@ -261,11 +283,21 @@ describe("compounds, uncountables, singular -ss, Unicode, and roundtrips", () =>
   test("compounds, degree units, fractional units, and open compounds", async () => {
     await runInflector(
       Effect.gen(function* () {
-        expect(Option.getOrUndefined(yield* singularNoun("hello-out-there"))).toBe("hello-out-there")
-        expect(Option.getOrUndefined(yield* singularNoun("hello out there"))).toBe("hello out there")
-        expect(Option.getOrUndefined(yield* singularNoun("continue-to-operate"))).toBe("continue-to-operate")
-        expect(Option.getOrUndefined(yield* singularNoun("case of diapers"))).toBe("case of diapers")
-        expect(Option.getOrUndefined(yield* singularNoun("pair of scissors"))).toBe("pair of scissors")
+        expect(Option.getOrUndefined(yield* singularNoun("hello-out-there"))).toBe(
+          "hello-out-there"
+        )
+        expect(Option.getOrUndefined(yield* singularNoun("hello out there"))).toBe(
+          "hello out there"
+        )
+        expect(Option.getOrUndefined(yield* singularNoun("continue-to-operate"))).toBe(
+          "continue-to-operate"
+        )
+        expect(Option.getOrUndefined(yield* singularNoun("case of diapers"))).toBe(
+          "case of diapers"
+        )
+        expect(Option.getOrUndefined(yield* singularNoun("pair of scissors"))).toBe(
+          "pair of scissors"
+        )
 
         expect(yield* plural("degree celsius")).toBe("degrees celsius")
         expect(yield* plural("degree fahrenheit")).toBe("degrees fahrenheit")
@@ -281,7 +313,9 @@ describe("compounds, uncountables, singular -ss, Unicode, and roundtrips", () =>
         expect(yield* plural("mother-in-law per lifetime")).toBe("mothers-in-law per lifetime")
         expect(yield* plural("pound-force per square inch")).toBe("pounds-force per square inch")
 
-        expect(yield* plural("watt per square meter degree celsius")).toBe("watts per square meter degree celsius")
+        expect(yield* plural("watt per square meter degree celsius")).toBe(
+          "watts per square meter degree celsius"
+        )
         expect(yield* plural("degree celsius per hour")).toBe("degrees celsius per hour")
         expect(yield* plural("degree fahrenheit hour square foot per btuit inch")).toBe(
           "degree fahrenheit hour square feet per btuit inch"
@@ -349,10 +383,20 @@ describe("compounds, uncountables, singular -ss, Unicode, and roundtrips", () =>
   test("singularNoun on -ss words and -sses plurals", async () => {
     await runInflector(
       Effect.gen(function* () {
-        for (const word of ["grass", "glass", "underpass", "boss", "loss", "moss", "cross", "dress", "stress"]) {
+        for (const word of [
+          "grass",
+          "glass",
+          "underpass",
+          "boss",
+          "loss",
+          "moss",
+          "cross",
+          "dress",
+          "stress"
+        ]) {
           expect(Option.isNone(yield* singularNoun(word))).toBe(true)
         }
-        for (const [plur, sing] of [
+        const ssesPairs: ReadonlyArray<readonly [string, string]> = [
           ["grasses", "grass"],
           ["glasses", "glass"],
           ["bosses", "boss"],
@@ -360,7 +404,8 @@ describe("compounds, uncountables, singular -ss, Unicode, and roundtrips", () =>
           ["mosses", "moss"],
           ["crosses", "cross"],
           ["dresses", "dress"]
-        ] as const) {
+        ]
+        for (const [plur, sing] of ssesPairs) {
           expect(Option.getOrUndefined(yield* singularNoun(plur))).toBe(sing)
         }
       })
@@ -628,5 +673,37 @@ describe("gender, comparisons, presentParticiple, and user-defined rules", () =>
         expect(reason.error).toBeInstanceOf(InvalidWordError)
       }
     }
+  })
+
+  test("TypeId branding, Function.dual state combinators, and subpath exports", async () => {
+    expect(TypeId).toBe("~inflectionts/Inflector")
+    expect(StateTypeId).toBe("~inflectionts/InflectorState")
+    expect(SubpathTypeId).toBe(TypeId)
+    expect(SubpathStateTypeId).toBe(StateTypeId)
+    expect(SubpathBadGenderError).toBe(BadGenderError)
+    expect(isInflectorState(defaultState)).toBe(true)
+    expect(isInflectorState({})).toBe(false)
+
+    // Data-last pipeline + data-first combinators
+    const configured = await runInflector(
+      Effect.succeed(defaultState).pipe(
+        Effect.flatMap(applyClassical({ ancient: true })),
+        Effect.flatMap(applyGender("feminine")),
+        Effect.flatMap(applyDefNoun("URL", "URLs", { case: "preserve" }))
+      )
+    )
+    expect(isInflectorState(configured)).toBe(true)
+
+    await runInflector(
+      Effect.gen(function* () {
+        const svc = yield* Inflector
+        expect(isInflectorService(svc)).toBe(true)
+        expect(isInflectorService({})).toBe(false)
+        expect(yield* pluralNoun("formula")).toBe("formulae")
+        expect(yield* pluralNoun("URL")).toBe("URLs")
+        expect(Option.getOrUndefined(yield* singularNoun("they"))).toBe("she")
+      }),
+      configured
+    )
   })
 })

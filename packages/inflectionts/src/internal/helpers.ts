@@ -1,8 +1,18 @@
-import { Predicate } from "effect"
+import * as Predicate from "effect/Predicate"
+
 import type { CountInput, InflectorState, UserDefinedEntry } from "../Schema.ts"
 
 export const PL_COUNT_ZERO: ReadonlySet<string> = new Set(["0", "no", "zero", "nil"])
-export const PL_COUNT_ONE: ReadonlySet<string> = new Set(["1", "a", "an", "one", "each", "every", "this", "that"])
+export const PL_COUNT_ONE: ReadonlySet<string> = new Set([
+  "1",
+  "a",
+  "an",
+  "one",
+  "each",
+  "every",
+  "this",
+  "that"
+])
 
 const PARTITION_WORD_RE = /^(\s*)(.+?)(\s*)$/
 const DOLLAR_DIGITS_RE = /\$(\d+)/g
@@ -18,7 +28,10 @@ export function slicePrefix(word: string, cutpoint: number | null): string {
   return word.slice(0, cutpoint)
 }
 
-export function joinstem(cutpoint: number | null = 0, words: Iterable<string> | null = null): string {
+export function joinstem(
+  cutpoint: number | null = 0,
+  words: Iterable<string> | null = null
+): string {
   if (words === null) {
     return enclose("")
   }
@@ -64,7 +77,10 @@ export function makePlSiLists(
   return { siList, siBysize, plBysize, stem }
 }
 
-export function matchesBysizeSuffix(word: string, table: ReadonlyMap<number, ReadonlySet<string>>): boolean {
+export function matchesBysizeSuffix(
+  word: string,
+  table: ReadonlyMap<number, ReadonlySet<string>>
+): boolean {
   for (const [k, set] of table) {
     if (word.length >= k && set.has(word.slice(-k))) {
       return true
@@ -120,7 +136,11 @@ export function partitionWord(text: string): readonly [string, string, string] {
   return [match[1] ?? "", match[2] ?? "", match[3] ?? ""]
 }
 
-export function recase(original: string, inflected: string, preserveCase: ReadonlySet<string>): string {
+export function recase(
+  original: string,
+  inflected: string,
+  preserveCase: ReadonlySet<string>
+): string {
   if (preserveCase.has(original)) {
     return inflected
   }
@@ -176,7 +196,10 @@ export function postprocess(orig: string, inflected: string, state: InflectorSta
   return out.join(" ")
 }
 
-export function udMatch(word: string, entries: ReadonlyArray<UserDefinedEntry>): string | undefined {
+export function udMatch(
+  word: string,
+  entries: ReadonlyArray<UserDefinedEntry>
+): string | undefined {
   for (let i = entries.length - 1; i >= 0; i--) {
     const entry = entries[i]
     if (entry === undefined || entry.pattern === null) {
@@ -213,7 +236,11 @@ export function formatCountValue(count: CountInput): string {
 
 export function getCount(count: CountInput, state: InflectorState): 1 | 2 | "" {
   const effective: CountInput =
-    count === undefined || count === null ? (state.persistentCount !== null ? state.persistentCount : undefined) : count
+    count === undefined || count === null
+      ? state.persistentCount !== null
+        ? state.persistentCount
+        : undefined
+      : count
 
   if (effective === undefined || effective === null) {
     return ""
@@ -221,13 +248,20 @@ export function getCount(count: CountInput, state: InflectorState): 1 | 2 | "" {
 
   const numericOne = Predicate.isNumber(effective) && effective === 1
   const asString = formatCountValue(effective)
-  if (numericOne || PL_COUNT_ONE.has(asString) || (state.classical.zero && PL_COUNT_ZERO.has(asString.toLowerCase()))) {
+  if (
+    numericOne ||
+    PL_COUNT_ONE.has(asString) ||
+    (state.classical.zero && PL_COUNT_ZERO.has(asString.toLowerCase()))
+  ) {
     return 1
   }
   return 2
 }
 
-export function findPivot(words: ReadonlyArray<string>, candidates: ReadonlySet<string>): number | undefined {
+export function findPivot(
+  words: ReadonlyArray<string>,
+  candidates: ReadonlySet<string>
+): number | undefined {
   for (let i = 1; i < words.length - 1; i++) {
     const w = words[i]
     if (w !== undefined && candidates.has(w)) {
@@ -260,7 +294,8 @@ export function handlePrepositionalPhrase(
   const prefix = parts.slice(0, pivot - 1)
   const suffix = parts.slice(pivot + 1).join(" ")
 
-  const assemble = (head: string): string => [...prefix, [head, pivotWord, ""].join(sep)].join(" ") + suffix
+  const assemble = (head: string): string =>
+    [...prefix, [head, pivotWord, ""].join(sep)].join(" ") + suffix
 
   return transformed.split("|").map(assemble).join("|")
 }

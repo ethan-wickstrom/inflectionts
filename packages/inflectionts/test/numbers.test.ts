@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test"
+
 import { Effect, Exit } from "effect"
 import {
   BadChunkingOptionError,
@@ -9,6 +10,7 @@ import {
   NumOutOfRangeError,
   ordinal
 } from "inflectionts"
+
 import { runInflector, runInflectorExit } from "./helpers.ts"
 
 describe("ordinal", () => {
@@ -130,7 +132,9 @@ describe("numberToWords and numberToWordsList", () => {
         expect(yield* numberToWords(1000000, { threshold: 500, comma: 0 })).toBe("1000000")
         expect(yield* numberToWords(1000.3, { threshold: 500, comma: "_" })).toBe("1_000.3")
         expect(yield* numberToWords(1000000, { threshold: 500, comma: "_" })).toBe("1_000_000")
-        expect(yield* numberToWords(1234, { comma: ";" })).toBe("one thousand; two hundred and thirty-four")
+        expect(yield* numberToWords(1234, { comma: ";" })).toBe(
+          "one thousand; two hundred and thirty-four"
+        )
 
         expect(yield* numberToWords(0.000001)).toBe("zero point zero zero zero zero zero one")
         expect(yield* numberToWords(1e20)).toBe("one hundred quintillion")
@@ -147,8 +151,22 @@ describe("numberToWords and numberToWordsList", () => {
       ["19", "nineteen", "one, nine", "nineteen", "nineteen", "nineteenth"],
       ["21", "twenty-one", "two, one", "twenty-one", "twenty-one", "twenty-first"],
       ["100", "one hundred", "one, zero, zero", "one, zero zero", "one zero zero", "one hundredth"],
-      ["101", "one hundred and one", "one, zero, one", "one, zero one", "one zero one", "one hundred and first"],
-      ["110", "one hundred and ten", "one, one, zero", "one, ten", "one ten", "one hundred and tenth"],
+      [
+        "101",
+        "one hundred and one",
+        "one, zero, one",
+        "one, zero one",
+        "one zero one",
+        "one hundred and first"
+      ],
+      [
+        "110",
+        "one hundred and ten",
+        "one, one, zero",
+        "one, ten",
+        "one ten",
+        "one hundred and tenth"
+      ],
       [
         "999",
         "nine hundred and ninety-nine",
@@ -157,7 +175,14 @@ describe("numberToWords and numberToWordsList", () => {
         "nine ninety-nine",
         "nine hundred and ninety-ninth"
       ],
-      ["1000", "one thousand", "one, zero, zero, zero", "ten, zero zero", "one, zero zero zero", "one thousandth"],
+      [
+        "1000",
+        "one thousand",
+        "one, zero, zero, zero",
+        "ten, zero zero",
+        "one, zero zero zero",
+        "one thousandth"
+      ],
       [
         "1001",
         "one thousand and one",
@@ -269,13 +294,22 @@ describe("numberToWords and numberToWordsList", () => {
         expect(yield* numberToWords("1234", { group: 2 })).toBe("twelve, thirty-four")
         expect(yield* numberToWords("12345", { group: 2 })).toBe("one, twenty-three, forty-five")
         expect(yield* numberToWords("98765", { group: 3 })).toBe("ninety-eight, seven sixty-five")
-        expect(yield* numberToWords("1234567", { group: 3 })).toBe("one, two thirty-four, five sixty-seven")
+        expect(yield* numberToWords("1234567", { group: 3 })).toBe(
+          "one, two thirty-four, five sixty-seven"
+        )
 
         // List output, custom andword / zero / one / decimal
-        expect(yield* numberToWordsList(1234)).toEqual(["one thousand", "two hundred and thirty-four"])
+        expect(yield* numberToWordsList(1234)).toEqual([
+          "one thousand",
+          "two hundred and thirty-four"
+        ])
         expect(yield* numberToWordsList("+10")).toEqual(["plus", "ten"])
-        expect(yield* numberToWords(1234, { andword: "" })).toBe("one thousand, two hundred thirty-four")
-        expect(yield* numberToWords(1234, { andword: ", plus" })).toBe("one thousand, two hundred, plus thirty-four")
+        expect(yield* numberToWords(1234, { andword: "" })).toBe(
+          "one thousand, two hundred thirty-four"
+        )
+        expect(yield* numberToWords(1234, { andword: ", plus" })).toBe(
+          "one thousand, two hundred, plus thirty-four"
+        )
         expect(yield* numberToWords(140, { andword: "," })).toBe("one hundred, forty")
         expect(yield* numberToWords(541140, { andword: "," })).toBe(
           "five hundred, forty-one thousand, one hundred, forty"
@@ -284,7 +318,9 @@ describe("numberToWords and numberToWordsList", () => {
         expect(yield* numberToWords("1234.5678", { decimal: null })).toBe(
           "twelve million, three hundred and forty-five thousand, six hundred and seventy-eight"
         )
-        expect(yield* numberToWords(555_1202, { group: 1, zero: "oh" })).toBe("five, five, five, one, two, oh, two")
+        expect(yield* numberToWords(555_1202, { group: 1, zero: "oh" })).toBe(
+          "five, five, five, one, two, oh, two"
+        )
         expect(yield* numberToWords(555_1202, { group: 1, one: "unity" })).toBe(
           "five, five, five, unity, two, zero, two"
         )
@@ -332,8 +368,12 @@ describe("numberToCurrency", () => {
   test("formats check-style currency with exact half-up rounding", async () => {
     await runInflector(
       Effect.gen(function* () {
-        expect(yield* numberToCurrency(100_020.56)).toBe("one hundred thousand and twenty and 56/100")
-        expect(yield* numberToCurrency(1234)).toBe("one thousand, two hundred and thirty-four and 00/100")
+        expect(yield* numberToCurrency(100_020.56)).toBe(
+          "one hundred thousand and twenty and 56/100"
+        )
+        expect(yield* numberToCurrency(1234)).toBe(
+          "one thousand, two hundred and thirty-four and 00/100"
+        )
         expect(yield* numberToCurrency(0.07)).toBe("zero and 07/100")
         expect(yield* numberToCurrency(1.5)).toBe("one and 50/100")
         expect(yield* numberToCurrency("19.99")).toBe("nineteen and 99/100")
@@ -349,7 +389,14 @@ describe("numberToCurrency", () => {
       })
     )
 
-    for (const bad of ["ten", "nan", "inf", Number.NaN, Number.POSITIVE_INFINITY] as const) {
+    const badCurrency: ReadonlyArray<number | string> = [
+      "ten",
+      "nan",
+      "inf",
+      Number.NaN,
+      Number.POSITIVE_INFINITY
+    ]
+    for (const bad of badCurrency) {
       const exit = await runInflectorExit(numberToCurrency(bad))
       expect(Exit.isFailure(exit)).toBe(true)
       if (Exit.isFailure(exit)) {

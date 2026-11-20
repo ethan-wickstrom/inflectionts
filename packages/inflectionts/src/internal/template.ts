@@ -1,4 +1,7 @@
-import { Effect, Option, Predicate } from "effect"
+import * as Effect from "effect/Effect"
+import * as Option from "effect/Option"
+import * as Predicate from "effect/Predicate"
+
 import {
   BadChunkingOptionError,
   BadGenderError,
@@ -7,7 +10,13 @@ import {
   InvalidWordError,
   NumOutOfRangeError
 } from "../Errors.ts"
-import type { CountInput, Gender, InflectorState, NumberInput, NumberToWordsOptions } from "../Schema.ts"
+import type {
+  CountInput,
+  Gender,
+  InflectorState,
+  NumberInput,
+  NumberToWordsOptions
+} from "../Schema.ts"
 import { isGender } from "../Schema.ts"
 import { aWord, noWord } from "./articles.ts"
 import { numberToWordsCore, ordinalValue } from "./numbers.ts"
@@ -101,7 +110,9 @@ class Parser {
     return Effect.fail(new InflectTemplateError({ expression: this.input, message }))
   }
 
-  parseArgs = Effect.fnUntraced(function* (this: Parser): Effect.fn.Return<ParsedCallArgs, InflectTemplateError> {
+  parseArgs = Effect.fnUntraced(function* (
+    this: Parser
+  ): Effect.fn.Return<ParsedCallArgs, InflectTemplateError> {
     const positional: Array<LiteralValue> = []
     const keywords = new Map<string, LiteralValue>()
     let seenKeyword = false
@@ -146,7 +157,9 @@ class Parser {
     return match[1]
   }
 
-  parseValue = Effect.fnUntraced(function* (this: Parser): Effect.fn.Return<LiteralValue, InflectTemplateError> {
+  parseValue = Effect.fnUntraced(function* (
+    this: Parser
+  ): Effect.fn.Return<LiteralValue, InflectTemplateError> {
     this.skipWs()
     if (this.pos >= this.input.length) {
       return yield* this.fail("Unexpected end of arguments")
@@ -225,9 +238,12 @@ class Parser {
     return yield* this.fail("Unterminated string literal")
   })
 
-  private parseNumber = Effect.fnUntraced(function* (this: Parser): Effect.fn.Return<number, InflectTemplateError> {
+  private parseNumber = Effect.fnUntraced(function* (
+    this: Parser
+  ): Effect.fn.Return<number, InflectTemplateError> {
     const rest = this.input.slice(this.pos)
-    const match = /^([+-])?(?:\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?|\.\d+(?:_\d+)*)(?:[eE][+-]?\d+)?/.exec(rest)
+    const match =
+      /^([+-])?(?:\d+(?:_\d+)*(?:\.\d+(?:_\d+)*)?|\.\d+(?:_\d+)*)(?:[eE][+-]?\d+)?/.exec(rest)
     if (match === null) {
       return yield* this.fail(`Invalid numeric literal at position ${this.pos}`)
     }
@@ -305,7 +321,10 @@ function literalToCount(val: LiteralValue | undefined): CountInput {
   return formatPythonLiteral(val)
 }
 
-function requireWord(val: LiteralValue | undefined, expression: string): Effect.Effect<string, InvalidWordError> {
+function requireWord(
+  val: LiteralValue | undefined,
+  expression: string
+): Effect.Effect<string, InvalidWordError> {
   if (!Predicate.isString(val) || val.length === 0) {
     return Effect.fail(
       new InvalidWordError({
@@ -326,12 +345,16 @@ function requireNumberInput(
   }
   if (Predicate.isString(val)) {
     if (val.length === 0) {
-      return Effect.fail(new InvalidWordError({ input: "", message: `Empty word in ${expression}` }))
+      return Effect.fail(
+        new InvalidWordError({ input: "", message: `Empty word in ${expression}` })
+      )
     }
     return Effect.succeed(val)
   }
   const formatted = val === undefined ? "undefined" : formatPythonLiteral(val)
-  return Effect.fail(new BadNumValueError({ input: formatted, message: `Expected number or word in ${expression}` }))
+  return Effect.fail(
+    new BadNumValueError({ input: formatted, message: `Expected number or word in ${expression}` })
+  )
 }
 
 export type InflectTemplateAllErrors =
@@ -387,7 +410,8 @@ export const evaluateInflectTemplate = Effect.fnUntraced(function* (
     const pos = parsed.positional
     const kw = parsed.keywords
 
-    const getArg = (index: number, name: string): LiteralValue | undefined => kw.get(name) ?? pos[index]
+    const getArg = (index: number, name: string): LiteralValue | undefined =>
+      kw.get(name) ?? pos[index]
 
     switch (fnName) {
       case "plural": {
@@ -470,14 +494,20 @@ export const evaluateInflectTemplate = Effect.fnUntraced(function* (
         const opts: NumberToWordsOptions = {
           group: Predicate.isNumber(groupVal) ? groupVal : undefined,
           comma:
-            Predicate.isString(commaVal) || commaVal === false || commaVal === 0 || commaVal === null
+            Predicate.isString(commaVal) ||
+            commaVal === false ||
+            commaVal === 0 ||
+            commaVal === null
               ? commaVal
               : undefined,
           andword: Predicate.isString(andwordVal) ? andwordVal : undefined,
           zero: Predicate.isString(zeroVal) ? zeroVal : undefined,
           one: Predicate.isString(oneVal) ? oneVal : undefined,
           decimal:
-            Predicate.isString(decimalVal) || decimalVal === false || decimalVal === 0 || decimalVal === null
+            Predicate.isString(decimalVal) ||
+            decimalVal === false ||
+            decimalVal === 0 ||
+            decimalVal === null
               ? decimalVal
               : undefined,
           threshold: Predicate.isNumber(thresholdVal) ? thresholdVal : undefined
@@ -508,7 +538,11 @@ export const evaluateInflectTemplate = Effect.fnUntraced(function* (
           const show =
             showVal === undefined ||
             showVal === null ||
-            (Predicate.isBoolean(showVal) ? showVal : Predicate.isNumber(showVal) ? showVal !== 0 : showVal !== "")
+            (Predicate.isBoolean(showVal)
+              ? showVal
+              : Predicate.isNumber(showVal)
+                ? showVal !== 0
+                : showVal !== "")
           if (show) {
             output += String(countVal)
           }

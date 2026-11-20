@@ -1,6 +1,15 @@
 import { describe, expect, test } from "bun:test"
+
 import { Effect, Exit } from "effect"
-import { BadNumValueError, getState, inflect, InflectTemplateError, num, plural } from "inflectionts"
+import {
+  BadNumValueError,
+  getState,
+  inflect,
+  InflectTemplateError,
+  num,
+  plural
+} from "inflectionts"
+
 import { runInflector, runInflectorExit } from "./helpers.ts"
 
 describe("inflect template interpolation", () => {
@@ -29,8 +38,14 @@ describe("inflect template interpolation", () => {
           ["The plural of car is plural('car')", "The plural of car is cars"],
           ["The singular of car is singular_noun('car')", "The singular of car is car"],
           ["I saw 3 plural('cat',3)", "I saw 3 cats"],
-          ["plural('I',1) plural_verb('saw',1) plural('a',2) plural_noun('saw',2)", "I saw some saws"],
-          ["num(1, False)plural('I') plural_verb('saw') num(1, False)plural('a') plural_noun('saw')", "I saw a saw"],
+          [
+            "plural('I',1) plural_verb('saw',1) plural('a',2) plural_noun('saw',2)",
+            "I saw some saws"
+          ],
+          [
+            "num(1, False)plural('I') plural_verb('saw') num(1, False)plural('a') plural_noun('saw')",
+            "I saw a saw"
+          ],
           [
             "num(2, False)plural('I') plural_verb('saw') num(2, False)plural('a') plural_noun('saw')",
             "we saw some saws"
@@ -58,7 +73,10 @@ describe("inflect template interpolation", () => {
           // Keyword args
           ["number_to_words(1234, andword='')", "one thousand, two hundred thirty-four"],
           ["number_to_words(1234, andword='plus')", "one thousand, two hundred plus thirty-four"],
-          ["number_to_words('555_1202', group=1, zero='oh')", "five, five, five, one, two, oh, two"],
+          [
+            "number_to_words('555_1202', group=1, zero='oh')",
+            "five, five, five, one, two, oh, two"
+          ],
           // Signed numbers
           ["number_to_words(-12)", "minus twelve"],
           ["number_to_words(+12)", "twelve"],

@@ -85,7 +85,11 @@ export function aWord(text: string, count: CountInput, state: InflectorState): s
 
 export function noWord(text: string, count: CountInput, state: InflectorState): string {
   let effectiveCount: CountInput =
-    count === undefined || count === null ? (state.persistentCount !== null ? state.persistentCount : 0) : count
+    count === undefined || count === null
+      ? state.persistentCount !== null
+        ? state.persistentCount
+        : 0
+      : count
 
   const [pre, word, post] = partitionWord(text)
   const countStr = formatCountValue(effectiveCount)

@@ -23,6 +23,9 @@
       ];
       forAllSystems = lib.genAttrs systems;
 
+      asChecks =
+        prefix: attrs: lib.mapAttrs' (name: drv: lib.nameValuePair "${prefix}-${name}" drv) attrs;
+
       projectSrc = lib.fileset.toSource {
         root = ./.;
         fileset =
@@ -56,6 +59,15 @@
         ];
       };
 
+      promotePublishManifest = pkgs: ''
+        ${lib.getExe pkgs.jq} '
+          if .publishConfig.exports then
+            .exports = .publishConfig.exports | del(.publishConfig.exports)
+          else . end
+        ' packages/inflectionts/package.json > packages/inflectionts/package.json.tmp
+        mv packages/inflectionts/package.json.tmp packages/inflectionts/package.json
+      '';
+
       perSystem = forAllSystems (
         system:
         let
@@ -73,7 +85,7 @@
             ];
           };
 
-          lockScript = pkgs.writeShellApplication {
+          lockPkg = pkgs.writeShellApplication {
             name = "lock";
             runtimeInputs = [
               bun2nixPkg
@@ -119,28 +131,25 @@
             else
               null;
 
-          mkOfflineCheck =
+          mkSandboxedCheck =
             name: script:
-            pkgs.stdenvNoCC.mkDerivation {
-              name = "inflectionts-${name}";
-              src = projectSrc;
-              dontConfigure = true;
-              dontFixup = true;
-              nativeBuildInputs = [
-                bun
-                bunDeps.prepareOfflineWorkspace
-              ];
-              buildPhase = ''
-                runHook preBuild
+            pkgs.runCommand "inflectionts-${name}"
+              {
+                nativeBuildInputs = [
+                  bun
+                  bunDeps.prepareOfflineWorkspace
+                  pkgs.jq
+                ];
+              }
+              ''
+                cp -r "${projectSrc}" work
+                chmod -R u+w work
+                cd work
+                export HOME="$TMPDIR"
                 prepare-offline-bun-workspace
                 ${script}
-                runHook postBuild
+                touch "$out"
               '';
-              installPhase = ''
-                mkdir -p "$out"
-                printf 'ok\n' > "$out/status"
-              '';
-            };
 
           inflectiontsPkg = pkgs.stdenvNoCC.mkDerivation {
             pname = "inflectionts";
@@ -151,11 +160,14 @@
             nativeBuildInputs = [
               bun
               bunDeps.prepareOfflineWorkspace
+              pkgs.jq
             ];
             buildPhase = ''
               runHook preBuild
+              export HOME="$TMPDIR"
               prepare-offline-bun-workspace
               bun run build
+              ${promotePublishManifest pkgs}
               runHook postBuild
             '';
             installPhase = ''
@@ -168,155 +180,164 @@
             '';
           };
 
-          packageConsumerCheck = pkgs.stdenvNoCC.mkDerivation {
-            name = "inflectionts-package-consumer";
-            src = projectSrc;
-            dontConfigure = true;
-            dontFixup = true;
-            nativeBuildInputs = [
-              bun
-              bunDeps.prepareOfflineWorkspace
-            ];
-            buildPhase = ''
-              runHook preBuild
-              prepare-offline-bun-workspace
-              bun run build
+          packageConsumerCheck = mkSandboxedCheck "package-consumer" ''
+            bun run build
+            ${promotePublishManifest pkgs}
 
-              pack_dir="$(mktemp -d)"
-              (cd packages/inflectionts && bun pm pack --destination "$pack_dir")
-              tarball="$(find "$pack_dir" -maxdepth 1 -name '*.tgz' | head -n 1)"
-              test -n "$tarball"
+            pack_dir="$(mktemp -d)"
+            (cd packages/inflectionts && bun pm pack --destination "$pack_dir")
+            tarball="$(find "$pack_dir" -maxdepth 1 -name '*.tgz' | head -n 1)"
+            test -n "$tarball"
 
-              consumer_dir="$(mktemp -d)"
-              mkdir -p "$consumer_dir/node_modules/inflectionts"
-              tar -xzf "$tarball" -C "$consumer_dir/node_modules/inflectionts" --strip-components=1
+            consumer_dir="$(mktemp -d)"
+            mkdir -p "$consumer_dir/node_modules/inflectionts"
+            tar -xzf "$tarball" -C "$consumer_dir/node_modules/inflectionts" --strip-components=1
 
-              # Verify no catalog: or workspace: specifiers leaked into the packed manifest
-              if grep -E '"(catalog|workspace):' "$consumer_dir/node_modules/inflectionts/package.json"; then
-                echo "Packed package.json contains unresolved catalog/workspace specifier" >&2
-                exit 1
-              fi
+            # Verify no catalog:, workspace:, or ./src/ paths leaked into the packed manifest
+            if grep -E '"(catalog|workspace):|"./src/' "$consumer_dir/node_modules/inflectionts/package.json"; then
+              echo "Packed package.json contains unresolved catalog/workspace or src export" >&2
+              exit 1
+            fi
 
-              # Expose only declared peer dependency (effect) and tsc outside the workspace
-              ln -s "$(readlink -f node_modules/.bun/effect@4.1.4/node_modules/effect)" "$consumer_dir/node_modules/effect"
+            if [ -d "$consumer_dir/node_modules/inflectionts/src" ]; then
+              echo "Packed tarball unexpectedly includes src/" >&2
+              exit 1
+            fi
 
-              cat > "$consumer_dir/package.json" <<'EOF'
-              {
-                "name": "consumer-smoke",
-                "private": true,
-                "type": "module"
+            # Expose only declared peer dependency (effect) outside the workspace
+            ln -s "$(readlink -f node_modules/.bun/effect@4.1.4/node_modules/effect)" "$consumer_dir/node_modules/effect"
+
+            cat > "$consumer_dir/package.json" <<'EOF'
+            {
+              "name": "consumer-smoke",
+              "private": true,
+              "type": "module"
+            }
+            EOF
+
+            cat > "$consumer_dir/tsconfig.json" <<'EOF'
+            {
+              "compilerOptions": {
+                "target": "ES2022",
+                "lib": ["ES2023"],
+                "module": "NodeNext",
+                "moduleResolution": "NodeNext",
+                "strict": true,
+                "noEmit": true,
+                "skipLibCheck": true,
+                "types": []
+              },
+              "include": ["check.ts"]
+            }
+            EOF
+
+            cat > "$consumer_dir/check.ts" <<'EOF'
+            import * as Effect from "effect/Effect"
+            import * as Option from "effect/Option"
+            import * as Schema from "effect/Schema"
+            import {
+              comparisonCode,
+              compare,
+              inflect,
+              Inflector,
+              numberToCurrency,
+              numberToWords,
+              pluralNoun,
+              singularNoun,
+              Word
+            } from "inflectionts"
+            import { InvalidWordError } from "inflectionts/Errors"
+            import { TypeId } from "inflectionts/Inflector"
+            import { StateTypeId } from "inflectionts/Schema"
+
+            const program = Effect.gen(function* () {
+              const word: Word = Schema.decodeUnknownSync(Word)("person")
+              const people = yield* pluralNoun(word, 2)
+              const sing = yield* singularNoun(people)
+              const cmp = comparisonCode(yield* compare("index", "indices"))
+              const words = yield* numberToWords(243)
+              const check = yield* numberToCurrency(2.675)
+              const rendered = yield* inflect("There plural_verb('was',2) no('error',2)")
+
+              if (
+                people !== "people" ||
+                Option.getOrUndefined(sing) !== "person" ||
+                cmp !== "s:p" ||
+                words !== "two hundred and forty-three" ||
+                check !== "two and 68/100" ||
+                rendered !== "There were 2 errors" ||
+                TypeId !== "~inflectionts/Inflector" ||
+                StateTypeId !== "~inflectionts/InflectorState" ||
+                typeof InvalidWordError !== "function"
+              ) {
+                throw new Error("Consumer smoke verification failed")
               }
-              EOF
+            }).pipe(Effect.provide(Inflector.layer))
 
-              cat > "$consumer_dir/tsconfig.json" <<'EOF'
-              {
-                "compilerOptions": {
-                  "target": "ES2022",
-                  "lib": ["ES2023"],
-                  "module": "NodeNext",
-                  "moduleResolution": "NodeNext",
-                  "strict": true,
-                  "noEmit": true,
-                  "skipLibCheck": true,
-                  "types": []
-                },
-                "include": ["check.ts"]
-              }
-              EOF
+            await Effect.runPromise(program)
+            EOF
 
-              cat > "$consumer_dir/check.ts" <<'EOF'
-              import { Effect, Option, Schema } from "effect"
-              import {
-                comparisonCode,
-                compare,
-                inflect,
-                Inflector,
-                numberToCurrency,
-                numberToWords,
-                pluralNoun,
-                singularNoun,
-                Word
-              } from "inflectionts"
+            bun run --bun tsc -p "$consumer_dir/tsconfig.json"
+            bun --no-env-file "$consumer_dir/check.ts"
 
-              const program = Effect.gen(function* () {
-                const word: Word = Schema.decodeUnknownSync(Word)("person")
-                const people = yield* pluralNoun(word, 2)
-                const sing = yield* singularNoun(people)
-                const cmp = comparisonCode(yield* compare("index", "indices"))
-                const words = yield* numberToWords(243)
-                const check = yield* numberToCurrency(2.675)
-                const rendered = yield* inflect("There plural_verb('was',2) no('error',2)")
-
-                if (
-                  people !== "people" ||
-                  Option.getOrUndefined(sing) !== "person" ||
-                  cmp !== "s:p" ||
-                  words !== "two hundred and forty-three" ||
-                  check !== "two and 68/100" ||
-                  rendered !== "There were 2 errors"
-                ) {
-                  throw new Error("Consumer smoke verification failed")
-                }
-              }).pipe(Effect.provide(Inflector.layer))
-
-              await Effect.runPromise(program)
-              EOF
-
-              bun run --bun tsc -p "$consumer_dir/tsconfig.json"
-              bun --no-env-file "$consumer_dir/check.ts"
-              runHook postBuild
-            '';
-            installPhase = ''
-              mkdir -p "$out"
-              printf 'ok\n' > "$out/status"
-            '';
-          };
+            # Verify ./internal/* is blocked by exports
+            if bun --no-env-file -e 'await import("inflectionts/internal/data")' 2>/dev/null; then
+              echo "Expected inflectionts/internal/data import to be blocked" >&2
+              exit 1
+            fi
+          '';
 
           nixfmtCheck = pkgs.runCommand "inflectionts-nixfmt" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
             find "${nixFilesSrc}" -name '*.nix' -print0 | xargs -0 nixfmt --check
-            mkdir -p "$out"
-            printf 'ok\n' > "$out/status"
+            touch "$out"
           '';
 
           devShell = pkgs.mkShell {
             packages = [
               bun
               pkgs.gitFull
+              pkgs.nixd
+              pkgs.nixfmt
               formatter
               effectTsgoLsp
               oxlintLsp
             ];
           };
-        in
-        {
-          inherit formatter;
 
-          apps.lock = {
-            type = "app";
-            program = "${lockScript}/bin/lock";
-            meta.description = "Regenerate bun.nix from bun.lock";
-          };
-
-          devShells.default = devShell;
-
-          packages = lib.optionalAttrs (bunDeps != null) {
+          packages = {
+            lock = lockPkg;
+          }
+          // lib.optionalAttrs (bunDeps != null) {
             default = inflectiontsPkg;
             inflectionts = inflectiontsPkg;
           };
 
-          checks = {
-            dev-shell-default = devShell;
-            app-lock = lockScript;
-            nixfmt = nixfmtCheck;
-          }
-          // lib.optionalAttrs (bunDeps != null) {
-            package-default = inflectiontsPkg;
-            format = mkOfflineCheck "format" "bun run format:check";
-            typecheck = mkOfflineCheck "typecheck" "bun run typecheck";
-            lint = mkOfflineCheck "lint" "bun run lint";
-            test = mkOfflineCheck "test" "bun run test";
-            package-consumer = packageConsumerCheck;
+          devShells = {
+            default = devShell;
           };
+        in
+        {
+          inherit formatter packages devShells;
+
+          apps.lock = {
+            type = "app";
+            program = "${lockPkg}/bin/lock";
+            meta.description = "Regenerate bun.nix from bun.lock";
+          };
+
+          checks =
+            asChecks "package" packages
+            // asChecks "dev-shell" devShells
+            // {
+              nixfmt = nixfmtCheck;
+            }
+            // lib.optionalAttrs (bunDeps != null) {
+              format = mkSandboxedCheck "format" "bun run format:check";
+              typecheck = mkSandboxedCheck "typecheck" "bun run typecheck";
+              lint = mkSandboxedCheck "lint" "bun run lint";
+              test = mkSandboxedCheck "test" "bun run test";
+              package-consumer = packageConsumerCheck;
+            };
         }
       );
     in

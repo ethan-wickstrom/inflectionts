@@ -1,3 +1,9 @@
+/**
+ * Public entrypoint for `inflectionts`.
+ *
+ * @stability stable
+ * @since 0.1.0
+ */
 export {
   BadChunkingOptionError,
   BadGenderError,
@@ -34,6 +40,7 @@ export {
   getState,
   inflect,
   Inflector,
+  isInflectorService,
   join,
   makeInflector,
   no,
@@ -48,6 +55,7 @@ export {
   pluralVerb,
   presentParticiple,
   singularNoun,
+  TypeId,
   type InflectorService
 } from "./Inflector.ts"
 
@@ -64,8 +72,10 @@ export {
   defaultState,
   Gender,
   isGender,
+  isInflectorState,
   noClassical,
   NumberGroup,
+  StateTypeId,
   Word,
   type ClassicalPatch,
   type CountInput,
@@ -78,4 +88,11 @@ export {
   type UserDefinedEntry
 } from "./Schema.ts"
 
-export { bysize, enclose, joinstem, partitionWord, postprocess, udMatch } from "./internal/helpers.ts"
+export {
+  bysize,
+  enclose,
+  joinstem,
+  partitionWord,
+  postprocess,
+  udMatch
+} from "./internal/helpers.ts"

@@ -2,24 +2,35 @@
 
 Reference idioms extracted from the vendored Effect source at `repos/effect/` (`effect@4.1.4`, commit `289a53f7b1fc40049219c6e69022db2fb859c356`). Always verify unfamiliar APIs against `repos/effect/LLMS.md`, `repos/effect/packages/effect/SCHEMA.md`, and `repos/effect/packages/effect/src/`.
 
+## Imports & Tree-Shaking
+
+- Inside library source (`packages/*/src/**`), import Effect modules via explicit subpaths (`effect/Effect`, `effect/Schema`, `effect/Context`, `effect/Layer`, `effect/Match`, `effect/Option`, `effect/Predicate`, `effect/Ref`, `effect/Function`) rather than the root barrel `"effect"`.
+- In tests, import `Arbitrary` from `"effect/Arbitrary"` and `TestClock` from `"effect/testing"`.
+
 ## Effects & Control Flow
 
-- Use `Effect.gen(function*() { ... })` for inline Effect values; never wrap and immediately invoke `Effect.fn` as an IIFE.
-- Use `Effect.fn("Name")(function*(...) { ... })` for operations that need a tracing boundary.
-- Use `Effect.fnUntraced(function*(...) { ... })` for reusable library functions and hot paths where tracing spans are not useful.
+- Use `Effect.gen(function* () { ... })` for inline Effect values; never wrap and immediately invoke `Effect.fn` as an IIFE.
+- Use `Effect.fn("Name")(function* (...) { ... })` for operations that need a tracing boundary.
+- Use `Effect.fnUntraced(function* (...) { ... })` for reusable library functions and hot paths where tracing spans are not useful.
 - Always `return yield*` when yielding a typed failure so TypeScript narrows the subsequent branch.
 - Attach combinators to `Effect.fn` / `Effect.fnUntraced` as trailing arguments rather than `.pipe(...)`.
 - Use `Effect.catch`, `Effect.catchTag`, and `Effect.catchTags` (v4 replaces v3's `Effect.catchAll`).
 
 ```ts
-import { Effect, Schema } from "effect"
+import * as Effect from "effect/Effect"
+import * as Schema from "effect/Schema"
 
-export class InvalidInputError extends Schema.TaggedError<InvalidInputError>()("InvalidInputError", {
+export class InvalidInputError extends Schema.TaggedError<
+  InvalidInputError,
+  { readonly brand: unique symbol }
+>()("InvalidInputError", {
   input: Schema.String,
   message: Schema.String
 }) {}
 
-export const parsePositive = Effect.fnUntraced(function* (input: string): Effect.fn.Return<number, InvalidInputError> {
+export const parsePositive = Effect.fnUntraced(function* (
+  input: string
+): Effect.fn.Return<number, InvalidInputError> {
   const n = Number(input)
   if (!Number.isInteger(n) || n <= 0) {
     return yield* new InvalidInputError({ input, message: "Expected a positive integer" })
@@ -28,31 +39,22 @@ export const parsePositive = Effect.fnUntraced(function* (input: string): Effect
 })
 ```
 
-## Schemas & Domain Models
+## Schemas, Branding & Library Surface
 
-- Define external boundaries and domain types with `Schema`. Derive TypeScript types via `typeof MySchema["Type"]` and `typeof MySchema["Encoded"]`.
+- Define external boundaries and domain types with `Schema`. Derive TypeScript types via `(typeof MySchema)["Type"]` and `(typeof MySchema)["Encoded"]`.
 - `Schema.Literals(["a", "b"])` and `Schema.Union([A, B])` take arrays in Effect v4.
-- Add checks with `.check(...)`, e.g. `Schema.String.check(Schema.isMinLength(1))` or `Schema.NonEmptyString`.
-- Add brands with `.pipe(Schema.brand("BrandName"))`.
-- Model exclusive alternatives with `Schema.TaggedUnion({ TagA: { ... }, TagB: { ... } })` or `Schema.Union([Schema.TaggedStruct(...), ...])`.
-- Model domain errors with `Schema.TaggedError<Self>()("TagName", { ... })`.
-- Prefer `Schema.decodeUnknownEffect(schema)` inside Effect code and keep decoders constructed once at module scope.
+- Add checks with `.check(...)`, e.g. `Schema.NonEmptyString` or `Schema.Finite`.
+- Brand public domain types and services with a `~<package>/<Name>` `TypeId` literal and expose type guards with `Predicate.hasProperty`.
+- Expose reusable combinators with `dual` from `"effect/Function"`.
+- Tag public exports with `@stability` (`stable`, `unstable`, or `experimental`) and `@since` without leaking lower-stability types from stable signatures.
+- Model domain errors with branded `Schema.TaggedError<Self, { readonly brand: unique symbol }>()("TagName", { ... })`.
 
 ```ts
-import { Schema } from "effect"
+import * as Match from "effect/Match"
+import * as Schema from "effect/Schema"
 
 export const Word = Schema.NonEmptyString.pipe(Schema.brand("Word"))
 export type Word = (typeof Word)["Type"]
-
-export const Gender = Schema.Literals([
-  "feminine",
-  "masculine",
-  "neuter",
-  "gender-neutral",
-  "feminine or masculine",
-  "masculine or feminine"
-])
-export type Gender = (typeof Gender)["Type"]
 
 export const ComparisonResult = Schema.TaggedUnion({
   Equal: {},
@@ -62,75 +64,35 @@ export const ComparisonResult = Schema.TaggedUnion({
   NotEqual: {}
 })
 export type ComparisonResult = (typeof ComparisonResult)["Type"]
-```
 
-## Exhaustive Pattern Matching (`Match`)
-
-- Handle tagged unions with `Match.value(x).pipe(Match.tagsExhaustive({ ... }))` or `Match.type<T>().pipe(Match.tagsExhaustive({ ... }))`.
-- Use ordinary `if`/early returns for simple local guards rather than constructing an unnecessary matcher.
-
-```ts
-import { Match } from "effect"
-
-const describeComparison = Match.type<ComparisonResult>().pipe(
+export const comparisonCode = Match.type<ComparisonResult>().pipe(
+  Match.withReturnType<"eq" | "s:p" | "p:s" | "p:p" | undefined>(),
   Match.tagsExhaustive({
     Equal: () => "eq",
     SingularPlural: () => "s:p",
     PluralSingular: () => "p:s",
     PluralPlural: () => "p:p",
-    NotEqual: () => ""
+    NotEqual: () => undefined
   })
 )
 ```
 
 ## Services & Layers
 
-- Define services with `Context.Service<Self, Shape>()("pkg/path/Service")` and provide implementations with `Layer.succeed`, `Layer.sync`, `Layer.effect`, or `Layer.scoped`.
+- Define services with `Context.Service<Self, Shape>()("pkg/path/Service")` and provide implementations with `Layer.effect`, `Layer.scoped`, `Layer.sync`, or `Layer.succeed`.
 - Define configuration values with defaults using `Context.Reference<A>("pkg/Config", { defaultValue: () => ... })`.
-- Compose dependent layers explicitly with `Layer.provide` / `Layer.provideMerge` (never rely on `Layer.merge` to satisfy dependencies between sibling layers).
+- Compose dependent layers explicitly with `Layer.provide` / `Layer.provideMerge` (never rely on `Layer.mergeAll` to satisfy cross-layer requirements).
 - Access the service type with `MyService["Service"]`.
 
-```ts
-import { Context, Effect, Layer } from "effect"
-
-export class Formatter extends Context.Service<
-  Formatter,
-  {
-    readonly format: (value: string) => Effect.Effect<string>
-  }
->()("inflectionts/Formatter") {
-  static readonly layer = Layer.succeed(
-    Formatter,
-    Formatter.of({
-      format: (value) => Effect.succeed(value.trim())
-    })
-  )
-}
-```
-
-## Property Testing (`Arbitrary`)
+## Property Testing (`effect/Arbitrary`)
 
 - Use `Arbitrary.schema(schema)` and `Arbitrary.checkEffect(arbitrary, predicate, options)` inside tests.
+- Give each evaluation a fresh isolated layer via `Layer.fresh(...)`.
 - Inspect the returned `CheckResult`: accept ONLY `result._tag === "Passed"`. Fail the test on `"Falsified"`, `"Exhausted"`, or `"ReplayMismatch"`, formatting diagnostics with `Arbitrary.formatCheckFailure(result)`.
-
-```ts
-import { Arbitrary, Effect } from "effect"
-
-const assertProperty = Effect.fnUntraced(function* <A, E, R>(
-  arbitrary: Arbitrary.Arbitrary<A>,
-  property: (value: A) => boolean | Effect.Effect<boolean | void, E, R>,
-  options?: Arbitrary.CheckOptions
-) {
-  const result = yield* Arbitrary.checkEffect(arbitrary, property, options)
-  if (result._tag !== "Passed") {
-    return yield* Effect.die(new Error(Arbitrary.formatCheckFailure(result) ?? `Property failed: ${result._tag}`))
-  }
-})
-```
 
 ## Avoid
 
-- Do not use removed v3 APIs: `Effect.catchAll` (use `Effect.catch`), `Context.Tag` / `Context.GenericTag` (use `Context.Service`), `Schema.Literal("a", "b")` variadic form (use `Schema.Literals(["a", "b"])`), `Schema.Union(A, B)` variadic form (use `Schema.Union([A, B])`), `Effect.runSync` inside Effect generators, or `@effect/schema` / `@effect/match` separate packages.
-- Do not write manual `isString`/`isRecord` guards when `Predicate` from `effect` provides them.
+- Do not use removed v3 APIs: `Effect.catchAll` (use `Effect.catch`), `Context.Tag` / `Effect.Service` (use `Context.Service`), `Schema.Literal("a", "b")` variadic form (use `Schema.Literals(["a", "b"])`), `Schema.Union(A, B)` variadic form (use `Schema.Union([A, B])`), `Effect.runSync` inside Effect generators, or `@effect/schema` / `@effect/match` separate packages.
+- Do not author `any`, `as`, or manual `typeof x === "string"` guards when `Predicate` from `"effect/Predicate"` provides them.
 - Do not ignore `Arbitrary.checkEffect`'s return value.
-- Do not import from `repos/effect/`; always import from `"effect"` or `"@effect/*"`.
+- Do not import from `repos/effect/`; always import from declared package dependencies.

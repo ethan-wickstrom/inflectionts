@@ -13,6 +13,8 @@
     "typescript/no-misused-promises": "error",
     "typescript/no-unnecessary-type-assertion": "error",
     "effecttsgo/any-unknown-in-error-context": "error",
+    "effecttsgo/api-stability-leak": "error",
+    "effecttsgo/class-self-mismatch": "error",
     "effecttsgo/duplicate-package": "error",
     "effecttsgo/effect-fn-iife": "error",
     "effecttsgo/effect-fn-opportunity": "error",
@@ -34,8 +36,15 @@
   },
   "overrides": [
     {
+      "files": ["packages/*/src/internal/**/*.ts", "packages/*/src/index.ts"],
+      "rules": {
+        "effecttsgo/api-stability-leak": "off"
+      }
+    },
+    {
       "files": ["packages/*/test/**/*.ts"],
       "rules": {
+        "effecttsgo/api-stability-leak": "off",
         "effecttsgo/unstable-api-usage": "off"
       }
     }

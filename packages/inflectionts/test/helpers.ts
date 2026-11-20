@@ -1,4 +1,7 @@
-import { Arbitrary, Effect, Exit, Layer } from "effect"
+import * as Arbitrary from "effect/Arbitrary"
+import * as Effect from "effect/Effect"
+import type * as Exit from "effect/Exit"
+import * as Layer from "effect/Layer"
 import { Inflector, type InflectorState } from "inflectionts"
 
 /**
@@ -11,7 +14,10 @@ export function runScoped<A, E>(effect: Effect.Effect<A, E>): Promise<A> {
 /**
  * Run an Effect program with a fresh isolated `Inflector` layer.
  */
-export function runInflector<A, E>(effect: Effect.Effect<A, E, Inflector>, initialState?: InflectorState): Promise<A> {
+export function runInflector<A, E>(
+  effect: Effect.Effect<A, E, Inflector>,
+  initialState?: InflectorState
+): Promise<A> {
   const layer = initialState === undefined ? Inflector.layer : Inflector.layerWith(initialState)
   return runScoped(Effect.provide(effect, layer))
 }
@@ -44,7 +50,8 @@ export function checkInflectorProperty<A, E>(
       options
     )
     if (result._tag !== "Passed") {
-      const detail = Arbitrary.formatCheckFailure(result) ?? `Property check failed with status: ${result._tag}`
+      const detail =
+        Arbitrary.formatCheckFailure(result) ?? `Property check failed with status: ${result._tag}`
       return yield* Effect.die(new Error(detail))
     }
   })
