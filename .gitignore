@@ -7,3 +7,4 @@ result
 result-*
 .amp/
 packages/*/dist-pack/
+packages/*/docs/

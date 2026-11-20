@@ -14,21 +14,23 @@
       "oxfmt": "0.79.0",
       "oxlint": "1.94.0",
       "tsrs": "7.1.0-beta.tsrs3",
-      "typescript": "7.0.2"
+      "typescript": "7.0.2",
+      "@effect/docgen": "4.1.4"
     }
   },
   "type": "module",
   "scripts": {
     "build": "bun run --filter '*' build",
     "build:types": "bun run --bun effect-tsgo tsc -b tsconfig.build.json",
-    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test",
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test && bun run docs",
     "fix": "bun run lint:fix && bun run format",
     "format": "bun run --bun oxfmt",
     "format:check": "bun run --bun oxfmt --check",
     "lint": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages apps",
     "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages apps",
     "test": "bun test --no-env-file",
-    "typecheck": "bun run --bun effect-tsgo tsc -b"
+    "typecheck": "bun run --bun effect-tsgo tsc -b",
+    "docs": "bun run --filter inflectionts docs"
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",

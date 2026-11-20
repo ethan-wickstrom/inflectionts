@@ -13,7 +13,8 @@
     "**/node_modules/**",
     ".direnv/**",
     "result",
-    "result-*"
+    "result-*",
+    "packages/*/docs/**"
   ],
   "rules": {
     "typescript/consistent-type-assertions": [

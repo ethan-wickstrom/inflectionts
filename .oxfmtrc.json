@@ -6,5 +6,12 @@
   "tabWidth": 2,
   "sortPackageJson": true,
   "sortImports": {},
-  "ignorePatterns": ["repos/**", "**/dist/**", "**/node_modules/**", "bun.lock", "flake.lock"]
+  "ignorePatterns": [
+    "repos/**",
+    "**/dist/**",
+    "**/node_modules/**",
+    "bun.lock",
+    "flake.lock",
+    "packages/*/docs/**"
+  ]
 }

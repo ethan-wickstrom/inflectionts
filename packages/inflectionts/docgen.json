@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/@effect/docgen/schema.json",
+  "srcDir": "src",
+  "outDir": "docs",
+  "exclude": ["src/internal/**/*.ts", "src/index.ts"],
+  "projectHomepage": "https://github.com/ethan-wickstrom/inflectionts",
+  "srcLink": "https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/",
+  "enforceDescriptions": true,
+  "enforceVersion": true,
+  "runExamples": true,
+  "parseCompilerOptions": "./tsconfig.src.json",
+  "examplesCompilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "allowImportingTsExtensions": true,
+    "noUncheckedSideEffectImports": false,
+    "types": ["bun"],
+    "paths": {
+      "inflectionts": ["../../src/index.ts"]
+    }
+  }
+}

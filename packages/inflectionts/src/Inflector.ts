@@ -74,6 +74,7 @@ export type TypeId = "~inflectionts/Inflector"
 /**
  * Runtime type identifier branding `InflectorService` values.
  *
+ * @category symbols
  * @stability stable
  * @since 0.1.0
  */
@@ -82,6 +83,7 @@ export const TypeId: TypeId = "~inflectionts/Inflector"
 /**
  * Type guard verifying whether an unknown value is an `InflectorService`.
  *
+ * @category guards
  * @stability stable
  * @since 0.1.0
  */
@@ -202,6 +204,7 @@ const applyClassicalImpl = Effect.fnUntraced(function* (
  * Pure state combinator applying classical pluralization flags to an `InflectorState`.
  * Supports both data-first (`applyClassical(state, patch)`) and data-last (`applyClassical(patch)(state)`) calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -227,6 +230,7 @@ const applyGenderImpl = Effect.fnUntraced(function* (
  * Pure state combinator setting the default singular pronoun gender.
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -273,6 +277,7 @@ const applyNumImpl = Effect.fnUntraced(function* (
  * Pure state combinator setting or clearing the persistent default count.
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -322,6 +327,7 @@ const applyDefNounImpl = Effect.fnUntraced(function* (
  * Pure state combinator registering a custom noun plural rule.
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -375,6 +381,7 @@ const applyDefVerbImpl = Effect.fnUntraced(function* (
  * Pure state combinator registering custom verb plural rules for 1st, 2nd, and 3rd person.
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -418,6 +425,7 @@ const applyDefAdjImpl = Effect.fnUntraced(function* (
  * Pure state combinator registering a custom adjective plural rule.
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -455,6 +463,7 @@ const applyDefArticleImpl = Effect.fnUntraced(function* (
  * Pure state combinator registering an indefinite article override (`"a"` or `"an"`).
  * Supports both data-first and data-last calls.
  *
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -580,6 +589,7 @@ export interface InflectorService {
 /**
  * Construct an isolated `InflectorService` backed by an Effect `Ref<InflectorState>`.
  *
+ * @category constructors
  * @stability stable
  * @since 0.1.0
  */
@@ -868,6 +878,17 @@ export const makeInflector = Effect.fnUntraced(function* (
 /**
  * Effect service providing English inflection operations backed by an isolated `InflectorState`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, plural } from "inflectionts"
+ *
+ * // Provide the layer once at the edge of your program, then run it.
+ * const result = Effect.runSync(plural("person").pipe(Effect.provide(Inflector.layer)))
+ * assert.strictEqual(result, "people")
+ * ```
+ * @category layers
  * @stability stable
  * @since 0.1.0
  */
@@ -895,6 +916,20 @@ export class Inflector extends Context.Service<Inflector, InflectorService>()(
 /**
  * Read the current immutable `InflectorState` snapshot from the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { classical, getState, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* classical({ ancient: true })
+ *   assert.strictEqual((yield* getState).classical.ancient, true)
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category state
  * @stability stable
  * @since 0.1.0
  */
@@ -906,6 +941,22 @@ export const getState: Effect.Effect<InflectorState, never, Inflector> = Effect.
 /**
  * Return the plural of a word (preferring adjective, then verb, then noun rules).
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, plural } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* plural("person"), "people")
+ *   assert.strictEqual(yield* plural("was"), "were")
+ *   // A count of 1 keeps the singular form.
+ *   assert.strictEqual(yield* plural("cat", 1), "cat")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category plurals
  * @stability stable
  * @since 0.1.0
  */
@@ -917,6 +968,22 @@ export const plural = Effect.fnUntraced(function* (text: string, count?: CountIn
 /**
  * Return the plural of a singular noun or pronoun.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, pluralNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* pluralNoun("mouse"), "mice")
+ *   // Modern English plural by default; see `classical` for "cacti".
+ *   assert.strictEqual(yield* pluralNoun("cactus"), "cactuses")
+ *   assert.strictEqual(yield* pluralNoun("I"), "we")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category plurals
  * @stability stable
  * @since 0.1.0
  */
@@ -928,6 +995,21 @@ export const pluralNoun = Effect.fnUntraced(function* (text: string, count?: Cou
 /**
  * Return the plural conjugation of a singular verb.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, pluralVerb } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* pluralVerb("was"), "were")
+ *   assert.strictEqual(yield* pluralVerb("runs"), "run")
+ *   assert.strictEqual(yield* pluralVerb("is", 1), "is")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category plurals
  * @stability stable
  * @since 0.1.0
  */
@@ -939,6 +1021,20 @@ export const pluralVerb = Effect.fnUntraced(function* (text: string, count?: Cou
 /**
  * Return the plural form of a singular adjective or possessive.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, pluralAdj } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* pluralAdj("my"), "our")
+ *   assert.strictEqual(yield* pluralAdj("this"), "these")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category plurals
  * @stability stable
  * @since 0.1.0
  */
@@ -950,6 +1046,24 @@ export const pluralAdj = Effect.fnUntraced(function* (text: string, count?: Coun
 /**
  * Return the singular form of a plural noun or pronoun, or `Option.none()` if already singular.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import * as Option from "effect/Option"
+ * import { Inflector, singularNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.deepStrictEqual(yield* singularNoun("people"), Option.some("person"))
+ *   // Already singular: Option.none()
+ *   assert.deepStrictEqual(yield* singularNoun("person"), Option.none())
+ *   // Third argument picks the pronoun gender.
+ *   assert.deepStrictEqual(yield* singularNoun("they", undefined, "feminine"), Option.some("she"))
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category singulars
  * @stability stable
  * @since 0.1.0
  */
@@ -965,6 +1079,21 @@ export const singularNoun = Effect.fnUntraced(function* (
 /**
  * Compare two words for equality regardless of grammatical number across nouns, verbs, and adjectives.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { compare, comparisonCode, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(comparisonCode(yield* compare("index", "indices")), "s:p")
+ *   assert.strictEqual(comparisonCode(yield* compare("cat", "cat")), "eq")
+ *   assert.strictEqual((yield* compare("cat", "dog"))._tag, "NotEqual")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category comparison
  * @stability stable
  * @since 0.1.0
  */
@@ -976,6 +1105,19 @@ export const compare = Effect.fnUntraced(function* (word1: string, word2: string
 /**
  * Compare two nouns for equality regardless of grammatical number.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { compareNouns, comparisonCode, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(comparisonCode(yield* compareNouns("person", "people")), "s:p")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category comparison
  * @stability stable
  * @since 0.1.0
  */
@@ -987,6 +1129,19 @@ export const compareNouns = Effect.fnUntraced(function* (word1: string, word2: s
 /**
  * Compare two verbs for equality regardless of grammatical number.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { compareVerbs, comparisonCode, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(comparisonCode(yield* compareVerbs("runs", "run")), "s:p")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category comparison
  * @stability stable
  * @since 0.1.0
  */
@@ -998,6 +1153,19 @@ export const compareVerbs = Effect.fnUntraced(function* (word1: string, word2: s
 /**
  * Compare two adjectives for equality regardless of grammatical number.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { compareAdjs, comparisonCode, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(comparisonCode(yield* compareAdjs("my", "our")), "s:p")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category comparison
  * @stability stable
  * @since 0.1.0
  */
@@ -1009,6 +1177,21 @@ export const compareAdjs = Effect.fnUntraced(function* (word1: string, word2: st
 /**
  * Prefix a word with the pronunciation-appropriate indefinite article (`"a"` or `"an"`), or the count when not singular.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { a, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* a("hour"), "an hour")
+ *   assert.strictEqual(yield* a("unicorn"), "a unicorn")
+ *   assert.strictEqual(yield* a("FBI agent"), "an FBI agent")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category articles
  * @stability stable
  * @since 0.1.0
  */
@@ -1020,6 +1203,19 @@ export const a = Effect.fnUntraced(function* (text: string, count?: CountInput) 
 /**
  * Alias for `a`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { an, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* an("apple"), "an apple")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category articles
  * @stability stable
  * @since 0.1.0
  */
@@ -1028,6 +1224,21 @@ export const an = a
 /**
  * Format a count-prefixed phrase, replacing zero counts with `"no"`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, no } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* no("error", 0), "no errors")
+ *   assert.strictEqual(yield* no("error", 1), "1 error")
+ *   assert.strictEqual(yield* no("error", 4), "4 errors")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category numbers
  * @stability stable
  * @since 0.1.0
  */
@@ -1039,6 +1250,22 @@ export const no = Effect.fnUntraced(function* (text: string, count?: CountInput)
 /**
  * Set or clear the persistent default count on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, num, pluralNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* num(3)
+ *   // Calls without a count now use 3.
+ *   assert.strictEqual(yield* pluralNoun("dog"), "dogs")
+ *   yield* num() // clear it
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category configuration
  * @stability stable
  * @since 0.1.0
  */
@@ -1053,6 +1280,20 @@ export const num = Effect.fnUntraced(function* (
 /**
  * Return the present participle (`-ing` form) for a third-person singular verb.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, presentParticiple } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* presentParticiple("runs"), "running")
+ *   assert.strictEqual(yield* presentParticiple("lies"), "lying")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category verbs
  * @stability stable
  * @since 0.1.0
  */
@@ -1064,6 +1305,22 @@ export const presentParticiple = Effect.fnUntraced(function* (word: string) {
 /**
  * Convert a numeral or number word into its English ordinal form.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, numberToWords, ordinal } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* ordinal(21), "21st")
+ *   assert.strictEqual(yield* ordinal("twenty-one"), "twenty-first")
+ *   // Ordinal words from a number: spell it out first.
+ *   assert.strictEqual(yield* ordinal(yield* numberToWords(3)), "third")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category numbers
  * @stability stable
  * @since 0.1.0
  */
@@ -1075,6 +1332,21 @@ export const ordinal = Effect.fnUntraced(function* (input: NumberInput) {
 /**
  * Convert a number into English words.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, numberToWords } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* numberToWords(1234), "one thousand, two hundred and thirty-four")
+ *   assert.strictEqual(yield* numberToWords(1234, { andword: "" }), "one thousand, two hundred thirty-four")
+ *   assert.strictEqual(yield* numberToWords(1234, { group: 2 }), "twelve, thirty-four")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category numbers
  * @stability stable
  * @since 0.1.0
  */
@@ -1089,6 +1361,19 @@ export const numberToWords = Effect.fnUntraced(function* (
 /**
  * Convert a number into its list of English word chunks.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, numberToWordsList } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.deepStrictEqual(yield* numberToWordsList(1234), ["one thousand", "two hundred and thirty-four"])
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category numbers
  * @stability stable
  * @since 0.1.0
  */
@@ -1103,6 +1388,19 @@ export const numberToWordsList = Effect.fnUntraced(function* (
 /**
  * Format a monetary amount in check-style words with cents rounded half-up to `XX/100`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, numberToCurrency } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* numberToCurrency(2.675), "two and 68/100")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category numbers
  * @stability stable
  * @since 0.1.0
  */
@@ -1117,6 +1415,21 @@ export const numberToCurrency = Effect.fnUntraced(function* (
 /**
  * Join a list of words into an English grammatical conjunction list.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { Inflector, join } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* join(["apple", "banana", "carrot"]), "apple, banana, and carrot")
+ *   assert.strictEqual(yield* join(["a", "b"]), "a and b")
+ *   assert.strictEqual(yield* join(["x", "y", "z"], { conj: "or" }), "x, y, or z")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category lists
  * @stability stable
  * @since 0.1.0
  */
@@ -1131,6 +1444,21 @@ export const join = Effect.fnUntraced(function* (
 /**
  * Evaluate inline inflection calls (such as `plural('cat', 3)`) inside a template string.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { inflect, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   assert.strictEqual(yield* inflect("There plural_verb('was', 2) no('error', 2)"), "There were 2 errors")
+ *   // Each call returns only the inflected word, not the count.
+ *   assert.strictEqual(yield* inflect("I saw plural('cat', 3)"), "I saw cats")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category templates
  * @stability stable
  * @since 0.1.0
  */
@@ -1142,6 +1470,20 @@ export const inflect = Effect.fnUntraced(function* (text: string) {
 /**
  * Enable or disable classical pluralization modes on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { classical, Inflector, pluralNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* classical({ ancient: true })
+ *   assert.strictEqual(yield* pluralNoun("formula"), "formulae")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category configuration
  * @stability stable
  * @since 0.1.0
  */
@@ -1155,6 +1497,21 @@ export const classical = Effect.fnUntraced(function* (
 /**
  * Set the default pronoun gender used by `singularNoun` on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import * as Option from "effect/Option"
+ * import { gender, Inflector, singularNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* gender("feminine")
+ *   assert.deepStrictEqual(yield* singularNoun("they"), Option.some("she"))
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category configuration
  * @stability stable
  * @since 0.1.0
  */
@@ -1166,6 +1523,20 @@ export const gender = Effect.fnUntraced(function* (value: string) {
 /**
  * Register a custom singular-to-plural noun rule on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { defnoun, Inflector, pluralNoun } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* defnoun("VAX", "VAXen", { case: "preserve" })
+ *   assert.strictEqual(yield* pluralNoun("VAX"), "VAXen")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category custom rules
  * @stability stable
  * @since 0.1.0
  */
@@ -1181,6 +1552,20 @@ export const defnoun = Effect.fnUntraced(function* (
 /**
  * Register custom 1st, 2nd, and 3rd person verb plural rules on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { defverb, Inflector, pluralVerb } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* defverb("foobar", "feebar", null, null, null, null)
+ *   assert.strictEqual(yield* pluralVerb("foobar"), "feebar")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category custom rules
  * @stability stable
  * @since 0.1.0
  */
@@ -1199,6 +1584,20 @@ export const defverb = Effect.fnUntraced(function* (
 /**
  * Register a custom adjective plural rule on the active `Inflector` service.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { defadj, Inflector, pluralAdj } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* defadj("hir", "their")
+ *   assert.strictEqual(yield* pluralAdj("hir"), "their")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category custom rules
  * @stability stable
  * @since 0.1.0
  */
@@ -1213,6 +1612,20 @@ export const defadj = Effect.fnUntraced(function* (
 /**
  * Override the indefinite article to `"a"` for words matching `pattern`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { a, defa, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* defa("ewe")
+ *   assert.strictEqual(yield* a("ewe"), "a ewe")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category custom rules
  * @stability stable
  * @since 0.1.0
  */
@@ -1224,6 +1637,20 @@ export const defa = Effect.fnUntraced(function* (pattern: string | null) {
 /**
  * Override the indefinite article to `"an"` for words matching `pattern`.
  *
+ * @example
+ * ```ts
+ * import * as assert from "node:assert"
+ * import * as Effect from "effect/Effect"
+ * import { a, defan, Inflector } from "inflectionts"
+ *
+ * const program = Effect.gen(function* () {
+ *   yield* defan("horrendous.*")
+ *   assert.strictEqual(yield* a("horrendous affair"), "an horrendous affair")
+ * })
+ *
+ * Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+ * ```
+ * @category custom rules
  * @stability stable
  * @since 0.1.0
  */

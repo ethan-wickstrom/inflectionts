@@ -35,7 +35,7 @@ let
       mkdir -p "$HOME" "$out"
 
       BUN_INSTALL_CACHE_DIR="$out" \
-        bun install --frozen-lockfile --ignore-scripts --linker=isolated --no-progress
+        bun install --frozen-lockfile --ignore-scripts --linker=isolated --backend=copyfile --no-progress
 
       # Normalize Bun's absolute cache symlinks to relative symlinks so the FOD
       # output has zero temp-path or /nix/store references and hashes identically.
@@ -150,7 +150,7 @@ let
         export HOME="$home_dir"
         export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
         BUN_INSTALL_CACHE_DIR="$cache_dir" \
-          bun install --frozen-lockfile --ignore-scripts --linker=isolated --no-progress
+          bun install --frozen-lockfile --ignore-scripts --linker=isolated --backend=copyfile --no-progress
       )
 
       while IFS= read -r -d "" link; do

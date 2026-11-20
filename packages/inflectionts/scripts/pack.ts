@@ -13,6 +13,7 @@
 import * as BunRuntime from "@effect/platform-bun/BunRuntime"
 import * as BunServices from "@effect/platform-bun/BunServices"
 import { Argument, Command } from "effect/cli"
+import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as FileSystem from "effect/FileSystem"
 import * as Option from "effect/Option"
@@ -20,7 +21,6 @@ import * as Path from "effect/Path"
 import { ChildProcess } from "effect/process"
 import * as Schema from "effect/Schema"
 import * as Stream from "effect/Stream"
-import * as Terminal from "effect/Terminal"
 
 class PackError extends Schema.TaggedError<PackError, { readonly brand: unique symbol }>()(
   "PackError",
@@ -63,7 +63,6 @@ const run = Effect.fnUntraced(function* (
 const pack = Effect.fn("pack")(function* (destination: Option.Option<string>) {
   const fs = yield* FileSystem.FileSystem
   const path = yield* Path.Path
-  const terminal = yield* Terminal.Terminal
 
   const packageDir = path.resolve(import.meta.dir, "..")
   const repoRoot = path.resolve(packageDir, "../..")
@@ -99,7 +98,7 @@ const pack = Effect.fn("pack")(function* (destination: Option.Option<string>) {
   yield* fs.makeDirectory(outDir, { recursive: true })
   yield* run(stage, "bun", ["pm", "pack", "--destination", outDir, "--quiet"])
 
-  yield* terminal.display(`${path.join(outDir, `inflectionts-${published.version}.tgz`)}\n`)
+  yield* Console.log(path.join(outDir, `inflectionts-${published.version}.tgz`))
 }, Effect.scoped)
 
 const command = Command.make(

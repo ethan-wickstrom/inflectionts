@@ -421,6 +421,7 @@
               typecheck = mkSandboxedCheck "typecheck" "bun run typecheck";
               lint = mkSandboxedCheck "lint" "bun run lint";
               test = mkSandboxedCheck "test" "bun run test";
+              docs = mkSandboxedCheck "docs" "patchShebangs packages/inflectionts/scripts/bin && bun run docs";
               package-consumer = packageConsumerCheck;
             };
         }

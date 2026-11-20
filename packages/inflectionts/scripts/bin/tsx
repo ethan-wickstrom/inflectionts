@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# docgen runs its extracted @example programs with `tsx --tsconfig <file> <entry>`.
+# This stand-in runs them with Bun so the docs check needs no Node.js runtime.
+set -euo pipefail
+[[ "$1" == --tsconfig ]] || { echo "tsx shim: expected --tsconfig <file> <entry>, got: $*" >&2; exit 2; }
+exec bun --tsconfig-override="$2" "$3"
