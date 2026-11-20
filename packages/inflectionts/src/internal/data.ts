@@ -1,4 +1,18 @@
 // Linguistic wordlists and inflection tables ported verbatim from jaraco/inflect.
+//
+// Names follow upstream's scheme, read left to right:
+//   pl_ / si_    rules for pluralizing / singularizing
+//   sb / v / adj substantive (noun) / verb / adjective
+//   U / C        applied unconditionally / only in classical mode (see `classical`)
+//   a_ae         the ending rewrite, here "..a" -> "..ae"
+//   _complete    whole words; _endings matches word endings; _caps is case-sensitive
+//   _bysize      derived lookup tables keyed by length (computed below, not edited)
+//
+// To make a noun plural to itself (like "sheep"), add it in lowercase to
+// `pl_sb_uninflected_complete`; plural.ts checks that list case-insensitively.
+// Some lists repeat entries from upstream (for example the tails of
+// `pl_sb_uninflected_s_complete` and `pl_sb_uninflected_complete`), so edit by line,
+// not by matching a list's last entry.
 import * as Predicate from "effect/Predicate"
 
 import type { Gender } from "../Schema.ts"

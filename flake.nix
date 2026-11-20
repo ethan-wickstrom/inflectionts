@@ -49,6 +49,7 @@
               ./.oxfmtrc.json
               ./README.md
               ./LICENSE
+              ./docs
               ./packages
               ./apps
             ])

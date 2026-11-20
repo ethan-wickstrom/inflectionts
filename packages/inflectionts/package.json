@@ -48,7 +48,7 @@
     "build:js": "bun build ./src/index.ts ./src/Errors.ts ./src/Schema.ts ./src/Inflector.ts --outdir ./dist --root ./src --splitting --target=node --format=esm --packages=external --sourcemap=linked",
     "build:types": "bun run --bun tsc -b tsconfig.src.json",
     "pack": "bun scripts/pack.ts",
-    "docs": "PATH=\"$PWD/scripts/bin:$PATH\" bun run --bun docgen"
+    "docs": "PATH=\"$PWD/scripts/bin:$PATH\" bun run --bun docgen && bun scripts/check-docs.ts"
   },
   "devDependencies": {
     "@effect/docgen": "catalog:",

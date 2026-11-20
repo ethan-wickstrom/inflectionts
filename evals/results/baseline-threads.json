@@ -1,0 +1,71 @@
+{
+  "run": "baseline",
+  "date": "2026-11-20",
+  "commit": "2bd0f42",
+  "agent": "amp (anthropic/claude-opus-5-5), fresh no-project orb, web access",
+  "coldStart": "T-01a1fb2d-23b8-740a-9590-cda285acd6b7",
+  "adoption": {
+    "fit-collection-names": [
+      "T-01a1fb2d-76f4-7708-8f28-2087eff68aeb",
+      "T-01a1fb2e-2235-74f7-a765-a559198f8557",
+      "T-01a1fb2e-c98c-768b-ae7f-9997ee5a682a"
+    ],
+    "fit-report-sentence": [
+      "T-01a1fb2d-825c-7305-a720-b2a7b55ad02b",
+      "T-01a1fb2e-2a8e-766a-9d3b-4287d313f4f7",
+      "T-01a1fb2e-d344-70e1-86a7-46c5a6b7d233"
+    ],
+    "fit-a-or-an": [
+      "T-01a1fb2d-896c-77d9-a544-313b8e6d9026",
+      "T-01a1fb2e-338b-72a0-9f2a-740b6c048c9c",
+      "T-01a1fb2e-d965-74b8-a2fe-32d4888282ce"
+    ],
+    "fit-ordinals-singular": [
+      "T-01a1fb2d-9577-7226-b984-5df5f2f7ff94",
+      "T-01a1fb2e-3ae9-7514-ac27-6dbe9b25111f",
+      "T-01a1fb2e-dfc5-7248-a63f-b367f2594a7d"
+    ],
+    "fit-templates": [
+      "T-01a1fb2d-9c23-735a-8f04-0b8cd6b32adb",
+      "T-01a1fb2e-41bd-72d5-8fd9-6f58a8a58933",
+      "T-01a1fb2e-e5f2-7377-8031-5f6372a8bf16"
+    ],
+    "border-few-resource-names": [
+      "T-01a1fb2d-a344-75c8-bdd5-62e37985f4f3",
+      "T-01a1fb2e-4964-749a-b31a-d6858f24bb2e",
+      "T-01a1fb2e-ecb6-77b7-b583-7644f3fa231c"
+    ],
+    "border-effect3-migration": [
+      "T-01a1fb2d-aa68-722e-b8e3-a714cc30b10d",
+      "T-01a1fb2e-5067-721b-b720-ecae787dc0f4",
+      "T-01a1fb2e-f3ca-755b-957c-a2828b445337"
+    ],
+    "border-check-words": [
+      "T-01a1fb2d-b2ea-72f4-bbf4-e83a9ac381c1",
+      "T-01a1fb2e-564c-7733-ad5f-2883eb519584",
+      "T-01a1fb2e-faeb-71f2-875c-629019056a83"
+    ],
+    "out-react-comments": [
+      "T-01a1fb2d-ba50-7493-adf0-3d031da186d8",
+      "T-01a1fb2e-5f26-7368-ad29-389844f89b73",
+      "T-01a1fb2f-037d-7469-ae7a-0acb72e2967c"
+    ],
+    "out-effect-fixed-label": [
+      "T-01a1fb2d-c11c-7641-b811-a131d8075e07",
+      "T-01a1fb2e-668f-70a8-912b-bfe1b0f5e4d0",
+      "T-01a1fb2f-0a48-723c-97d7-150774515fd7"
+    ],
+    "out-express-routes": [
+      "T-01a1fb2d-c7ad-76f5-9518-33af87dd0c2e",
+      "T-01a1fb2e-6d5c-766c-817e-60aad3c5796d",
+      "T-01a1fb2f-10f7-71cd-b41d-57386da9cb30"
+    ],
+    "out-python": [
+      "T-01a1fb2d-ce90-721e-b3bd-58f420c242f2",
+      "T-01a1fb2e-735a-737d-b6ae-e6d8a6d2b51b",
+      "T-01a1fb2f-1dab-7029-bd54-785466b035d9"
+    ]
+  },
+  "condition": "manifest-aware: every orb had /home/user/workspace/PROJECTS.md listing inflectionts with a git clone command, so these runs measure fit judgment when the agent already knows the package exists, not discovery. fit-ordinals-singular r2 cited PROJECTS.md as its reason.",
+  "adoptionProject": "no-project"
+}
