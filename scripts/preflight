@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Fail early, with the fix, when the toolchain is wrong. Runs first in `bun run check`.
+# Plain bash on purpose: it has to work before dependencies are installed.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+wanted="$(sed -nE 's/.*"packageManager": *"bun@([^"]+)".*/\1/p' package.json)"
+fix="Install it with:  curl -fsSL https://bun.sh/install | bash -s bun-v${wanted}
+or use the pinned toolchain:  nix develop   (or: direnv allow)"
+
+if ! command -v bun >/dev/null 2>&1; then
+  printf 'error: bun is not on PATH; this repository needs Bun %s.\n%s\n' "$wanted" "$fix" >&2
+  exit 1
+fi
+
+actual="$(bun --version)"
+if [[ "$actual" != "$wanted" ]]; then
+  printf 'error: found Bun %s at %s; this repository needs Bun %s.\n%s\n' \
+    "$actual" "$(command -v bun)" "$wanted" "$fix" >&2
+  exit 1
+fi

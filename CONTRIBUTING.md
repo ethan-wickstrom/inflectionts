@@ -2,16 +2,14 @@
 
 ## Set up
 
-The toolchain is pinned in `flake.nix` (Bun 1.4.5 and the language servers). With [Nix](https://nixos.org/download) and [direnv](https://direnv.net):
-
 ```sh
 git clone https://github.com/ethan-wickstrom/inflectionts && cd inflectionts
-direnv allow            # or: nix develop
-bun install --frozen-lockfile
 bun run check
 ```
 
-Without Nix, install [Bun 1.4.5](https://bun.sh) and run the last two commands. Entering the dev shell also points `core.hooksPath` at `.githooks`, so every commit runs `bun run check` first; skip it once with `git commit --no-verify`.
+That one command checks the toolchain, installs dependencies from `bun.lock`, and runs every gate. It needs Bun 1.4.5 (the `packageManager` field in `package.json`); with any other version or no Bun, it stops and prints how to install the right one.
+
+With [Nix](https://nixos.org/download), `direnv allow` or `nix develop` gives you the pinned Bun and the editor language servers, and points `core.hooksPath` at `.githooks` so every commit runs `bun run check` first. Skip the hook once with `git commit --no-verify`.
 
 ## Layout
 
@@ -35,7 +33,7 @@ bun run fix                                 # autofix lint, then format
 bun run check                               # everything the pre-commit hook and Nix check
 ```
 
-`bun run check` runs, in order: formatting, type checking, lint, tests, and `docs`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md` and `docs/`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them.
+`bun run check` runs, in order: the toolchain preflight, `bun install --frozen-lockfile`, formatting, type checking, lint, tests, and `docs`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md` and `docs/`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them.
 
 ## Change a word list
 

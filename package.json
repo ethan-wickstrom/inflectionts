@@ -22,7 +22,7 @@
   "scripts": {
     "build": "bun run --filter '*' build",
     "build:types": "bun run --bun effect-tsgo tsc -b tsconfig.build.json",
-    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test && bun run docs",
+    "check": "scripts/preflight && bun install --frozen-lockfile && bun run format:check && bun run typecheck && bun run lint && bun run test && bun run docs",
     "fix": "bun run lint:fix && bun run format",
     "format": "bun run --bun oxfmt",
     "format:check": "bun run --bun oxfmt --check",
@@ -39,5 +39,6 @@
     "oxlint": "catalog:",
     "tsrs": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "packageManager": "bun@1.4.5"
 }

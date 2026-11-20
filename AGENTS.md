@@ -4,9 +4,9 @@ Effect v4 port of Python's inflect: English plurals, singulars, `a`/`an`, ordina
 
 ## Commands
 
-Run from the repository root. The dev shell (`direnv allow` or `nix develop`) pins Bun 1.4.5; with plain Bun, check `bun --version` first.
+Run from the repository root. The dev shell (`direnv allow` or `nix develop`) pins Bun 1.4.5; without it, `bun run check` stops with install instructions if Bun is not 1.4.5.
 
-- `bun run check`: formatting, `tsc -b`, type-aware lint, tests, then docs. It must pass before a commit; the pre-commit hook runs it.
+- `bun run check`: toolchain preflight, frozen install, formatting, `tsc -b`, type-aware lint, tests, then docs. It must pass before a commit; the pre-commit hook runs it.
 - `bun run fix`: autofix lint, then format. Run it before `check`.
 - `bun test <path>` or `bun test -t <name>`: tests run against `src/`, no build needed.
 - `bun run docs`: runs every `@example` in `src/*.ts` (docgen) and every `ts` block in `README.md` and `docs/` (`scripts/check-docs.ts`). A `ts` block followed by an `output` block must print exactly that.
