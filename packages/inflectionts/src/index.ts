@@ -1,4 +1,81 @@
-import { Schema } from "effect"
+export {
+  BadChunkingOptionError,
+  BadGenderError,
+  BadNumValueError,
+  BadUserDefinedPatternError,
+  InflectTemplateError,
+  InvalidWordError,
+  NumOutOfRangeError,
+  UnknownClassicalModeError,
+  type InflectError
+} from "./Errors.ts"
 
-export const Word = Schema.NonEmptyString.pipe(Schema.brand("Word"))
-export type Word = (typeof Word)["Type"]
+export {
+  a,
+  an,
+  applyClassical,
+  applyDefAdj,
+  applyDefArticle,
+  applyDefNoun,
+  applyDefVerb,
+  applyGender,
+  applyNum,
+  classical,
+  compare,
+  compareAdjs,
+  compareNouns,
+  compareVerbs,
+  defa,
+  defadj,
+  defan,
+  defnoun,
+  defverb,
+  gender,
+  getState,
+  inflect,
+  Inflector,
+  join,
+  makeInflector,
+  no,
+  num,
+  numberToCurrency,
+  numberToWords,
+  numberToWordsList,
+  ordinal,
+  plural,
+  pluralAdj,
+  pluralNoun,
+  pluralVerb,
+  presentParticiple,
+  singularNoun,
+  type InflectorService
+} from "./Inflector.ts"
+
+export {
+  allClassical,
+  CaseMode,
+  ClassicalConfig,
+  ClassicalMode,
+  ComparisonCode,
+  comparisonCode,
+  ComparisonResult,
+  defaultClassical,
+  defaultPreserveCase,
+  defaultState,
+  Gender,
+  isGender,
+  noClassical,
+  NumberGroup,
+  Word,
+  type ClassicalPatch,
+  type CountInput,
+  type DefNounOptions,
+  type InflectorState,
+  type JoinOptions,
+  type NumberInput,
+  type NumberToCurrencyOptions,
+  type NumberToWordsOptions,
+  type UserDefinedEntry
+} from "./Schema.ts"
+
+export { bysize, enclose, joinstem, partitionWord, postprocess, udMatch } from "./internal/helpers.ts"

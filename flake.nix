@@ -225,14 +225,41 @@
               EOF
 
               cat > "$consumer_dir/check.ts" <<'EOF'
-              import { Schema } from "effect"
-              import { Word } from "inflectionts"
+              import { Effect, Option, Schema } from "effect"
+              import {
+                comparisonCode,
+                compare,
+                inflect,
+                Inflector,
+                numberToCurrency,
+                numberToWords,
+                pluralNoun,
+                singularNoun,
+                Word
+              } from "inflectionts"
 
-              const decode = Schema.decodeUnknownSync(Word)
-              const w: Word = decode("cat")
-              if (w !== "cat") {
-                throw new Error("unexpected decode result")
-              }
+              const program = Effect.gen(function* () {
+                const word: Word = Schema.decodeUnknownSync(Word)("person")
+                const people = yield* pluralNoun(word, 2)
+                const sing = yield* singularNoun(people)
+                const cmp = comparisonCode(yield* compare("index", "indices"))
+                const words = yield* numberToWords(243)
+                const check = yield* numberToCurrency(2.675)
+                const rendered = yield* inflect("There plural_verb('was',2) no('error',2)")
+
+                if (
+                  people !== "people" ||
+                  Option.getOrUndefined(sing) !== "person" ||
+                  cmp !== "s:p" ||
+                  words !== "two hundred and forty-three" ||
+                  check !== "two and 68/100" ||
+                  rendered !== "There were 2 errors"
+                ) {
+                  throw new Error("Consumer smoke verification failed")
+                }
+              }).pipe(Effect.provide(Inflector.layer))
+
+              await Effect.runPromise(program)
               EOF
 
               bun run --bun tsc -p "$consumer_dir/tsconfig.json"
