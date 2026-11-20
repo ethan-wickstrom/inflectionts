@@ -17,15 +17,15 @@
   },
   "type": "module",
   "scripts": {
-    "build:types": "bun run --bun tsc -b tsconfig.build.json",
     "build": "bun run --filter '*' build",
-    "typecheck": "bun run --bun tsc -b tsconfig.json",
-    "lint": "bun run build:types && bun run --bun effect-tsgo --tsrs-lint=7.1.0-beta.tsrs3 oxlint --disable-nested-config --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages",
-    "lint:fix": "bun run build:types && bun run --bun effect-tsgo --tsrs-lint=7.1.0-beta.tsrs3 oxlint --disable-nested-config --type-aware --fix packages",
+    "build:types": "bun run --bun effect-tsgo tsc -b tsconfig.build.json",
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test",
     "format": "bun run --bun oxfmt",
     "format:check": "bun run --bun oxfmt --check",
+    "lint": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages",
+    "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages",
     "test": "bun run build && bun test --no-env-file",
-    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test"
+    "typecheck": "bun run --bun effect-tsgo tsc -b"
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",

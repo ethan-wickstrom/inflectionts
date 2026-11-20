@@ -113,9 +113,9 @@ Package exports are exposed from `"inflectionts"` and subpath modules `"inflecti
 Host tools are managed by `flake.nix` (pinned `nixos-26.05` + pinned Bun `1.4.5`). Workspace dependencies are pinned in `package.json` catalog and `bun.lock` (`effect@4.1.4`, `typescript@7.0.2`, `oxlint@1.94.0`, `oxfmt@0.79.0`, `tsrs@7.1.0-beta.tsrs3`, `@effect/tsgo@0.73.2`).
 
 ```sh
-nix develop -c bun run check      # format:check, typecheck (tsc 7.0.2), lint (effect-tsgo + tsrs), test
-nix develop -c bun run build      # emit .d.ts via tsc + ESM bundle via bun build
-nix run .#lock                    # regenerate bun.nix after changing bun.lock
+nix develop -c bun run check      # format:check, typecheck (effect-tsgo tsc -b), lint (effect-tsgo oxlint), test
+nix develop -c bun run build      # emit .d.ts via tsc + ESM bundles via bun build
+nix run .#lock                    # regenerate nix/bun-cache-hashes.nix after changing bun.lock
 nix fmt                           # format Nix files (excluding repos/)
 nix flake check                   # run offline sandboxed build, check, and packed-consumer verification
 ```

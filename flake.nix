@@ -3,17 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    bun2nix = {
-      url = "github:nix-community/bun2nix/2.1.2";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      bun2nix,
     }:
     let
       inherit (nixpkgs) lib;
@@ -25,6 +20,18 @@
 
       asChecks =
         prefix: attrs: lib.mapAttrs' (name: drv: lib.nameValuePair "${prefix}-${name}" drv) attrs;
+
+      bunHashes = import ./nix/bun-cache-hashes.nix;
+
+      manifestSrc = lib.fileset.toSource {
+        root = ./.;
+        fileset = lib.fileset.unions [
+          ./package.json
+          ./bun.lock
+          ./bunfig.toml
+          ./packages/inflectionts/package.json
+        ];
+      };
 
       projectSrc = lib.fileset.toSource {
         root = ./.;
@@ -55,7 +62,6 @@
         fileset = lib.fileset.unions [
           ./flake.nix
           ./nix
-          (lib.fileset.maybeMissing ./bun.nix)
         ];
       };
 
@@ -73,9 +79,15 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           bun = import ./nix/bun.nix { inherit pkgs; };
-          bun2nixPkg = bun2nix.packages.${system}.bun2nix;
-          cacheEntryCreator = bun2nix.packages.${system}.cacheEntryCreator;
-          resolveCatalogTs = "${bun2nix}/nix/mk-derivation/resolve-catalog.ts";
+
+          bunDeps = import ./nix/bun-deps.nix {
+            inherit
+              pkgs
+              bun
+              manifestSrc
+              ;
+            hashes = bunHashes;
+          };
 
           formatter = pkgs.nixfmt-tree.override {
             settings.global.excludes = [
@@ -83,22 +95,6 @@
               "node_modules/**"
               "packages/*/dist/**"
             ];
-          };
-
-          lockPkg = pkgs.writeShellApplication {
-            name = "lock";
-            runtimeInputs = [
-              bun2nixPkg
-              pkgs.nixfmt
-              pkgs.gnused
-            ];
-            text = ''
-              tmp_lock="$(mktemp)"
-              trap 'rm -f "$tmp_lock"' EXIT
-              sed 's/"lockfileVersion": [23],/"lockfileVersion": 1,/' bun.lock > "$tmp_lock"
-              bun2nix -l "$tmp_lock" -o bun.nix
-              nixfmt bun.nix
-            '';
           };
 
           effectTsgoLsp = pkgs.writeShellApplication {
@@ -113,23 +109,9 @@
             name = "oxlint-lsp";
             runtimeInputs = [ bun ];
             text = ''
-              exec bun run --bun effect-tsgo --tsrs-lint=7.1.0-beta.tsrs3 oxlint --lsp "$@"
+              exec bun run --bun effect-tsgo oxlint --lsp "$@"
             '';
           };
-
-          bunDeps =
-            if builtins.pathExists ./bun.nix then
-              import ./nix/bun-deps.nix {
-                inherit
-                  pkgs
-                  bun
-                  cacheEntryCreator
-                  resolveCatalogTs
-                  ;
-                bunNix = ./bun.nix;
-              }
-            else
-              null;
 
           mkSandboxedCheck =
             name: script:
@@ -139,13 +121,13 @@
                   bun
                   bunDeps.prepareOfflineWorkspace
                   pkgs.jq
+                  pkgs.writableTmpDirAsHomeHook
                 ];
               }
               ''
                 cp -r "${projectSrc}" work
                 chmod -R u+w work
                 cd work
-                export HOME="$TMPDIR"
                 prepare-offline-bun-workspace
                 ${script}
                 touch "$out"
@@ -161,10 +143,10 @@
               bun
               bunDeps.prepareOfflineWorkspace
               pkgs.jq
+              pkgs.writableTmpDirAsHomeHook
             ];
             buildPhase = ''
               runHook preBuild
-              export HOME="$TMPDIR"
               prepare-offline-bun-workspace
               bun run build
               ${promotePublishManifest pkgs}
@@ -179,6 +161,20 @@
               runHook postInstall
             '';
           };
+
+          bunVersionCheck = pkgs.runCommand "inflectionts-bun-version" { nativeBuildInputs = [ bun ]; } ''
+            actual="$(bun --version)"
+            if [[ "$actual" != "${bun.version}" ]]; then
+              echo "Expected Bun ${bun.version}, got $actual" >&2
+              exit 1
+            fi
+            touch "$out"
+          '';
+
+          nixfmtCheck = pkgs.runCommand "inflectionts-nixfmt" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
+            find "${nixFilesSrc}" -name '*.nix' -print0 | xargs -0 nixfmt --check
+            touch "$out"
+          '';
 
           packageConsumerCheck = mkSandboxedCheck "package-consumer" ''
             bun run build
@@ -196,6 +192,13 @@
             # Verify no catalog:, workspace:, or ./src/ paths leaked into the packed manifest
             if grep -E '"(catalog|workspace):|"./src/' "$consumer_dir/node_modules/inflectionts/package.json"; then
               echo "Packed package.json contains unresolved catalog/workspace or src export" >&2
+              exit 1
+            fi
+
+            # Verify peerDependencies preserves a compatible semver range for effect
+            peer_range="$(jq -r '.peerDependencies.effect' "$consumer_dir/node_modules/inflectionts/package.json")"
+            if [[ "$peer_range" != "^4.1.4" ]]; then
+              echo "Expected peerDependencies.effect = ^4.1.4, got $peer_range" >&2
               exit 1
             fi
 
@@ -287,11 +290,6 @@
             fi
           '';
 
-          nixfmtCheck = pkgs.runCommand "inflectionts-nixfmt" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
-            find "${nixFilesSrc}" -name '*.nix' -print0 | xargs -0 nixfmt --check
-            touch "$out"
-          '';
-
           devShell = pkgs.mkShell {
             packages = [
               bun
@@ -305,11 +303,9 @@
           };
 
           packages = {
-            lock = lockPkg;
-          }
-          // lib.optionalAttrs (bunDeps != null) {
             default = inflectiontsPkg;
             inflectionts = inflectiontsPkg;
+            lock = bunDeps.lockPkg;
           };
 
           devShells = {
@@ -321,17 +317,16 @@
 
           apps.lock = {
             type = "app";
-            program = "${lockPkg}/bin/lock";
-            meta.description = "Regenerate bun.nix from bun.lock";
+            program = "${bunDeps.lockPkg}/bin/lock";
+            meta.description = "Regenerate nix/bun-cache-hashes.nix from bun.lock";
           };
 
           checks =
             asChecks "package" packages
             // asChecks "dev-shell" devShells
             // {
+              bun-version = bunVersionCheck;
               nixfmt = nixfmtCheck;
-            }
-            // lib.optionalAttrs (bunDeps != null) {
               format = mkSandboxedCheck "format" "bun run format:check";
               typecheck = mkSandboxedCheck "typecheck" "bun run typecheck";
               lint = mkSandboxedCheck "lint" "bun run lint";

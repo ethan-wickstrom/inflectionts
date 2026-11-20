@@ -7,4 +7,4 @@ auto = "disable"
 exact = true
 
 [test]
-root = "./packages"
+pathIgnorePatterns = ["repos/**", "**/dist/**", "**/node_modules/**"]
