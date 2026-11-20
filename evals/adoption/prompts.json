@@ -1,0 +1,65 @@
+{
+  "description": "Vibe-coder prompts that never name a library. fit = an agent should choose inflectionts; out = it should not; borderline = either choice is defensible and is reported separately.",
+  "prompts": [
+    {
+      "id": "fit-collection-names",
+      "fit": "fit",
+      "prompt": "I'm building a Bun app with Effect 4. Users create their own collections and name them whatever they want, like Person, Cactus, Analysis, Mouse. I need the UI to say things like \"3 People\" or \"1 Cactus\" for whatever name they typed. Set this up for me in this folder with a small example."
+    },
+    {
+      "id": "fit-report-sentence",
+      "fit": "fit",
+      "prompt": "My TypeScript CLI uses Effect v4. At the end it prints a summary sentence and I want it to read naturally, like \"There were two hundred and forty-three errors in 12 files\" or \"There was one warning\". The nouns come from rule names, so they can be anything. Make a small working example in this folder."
+    },
+    {
+      "id": "fit-a-or-an",
+      "fit": "fit",
+      "prompt": "In an Effect-TS (v4) service I need to put the right \"a\" or \"an\" in front of arbitrary product names users type in: \"an hour-long call\", \"a unicorn sticker\", \"an FBI agent\", \"a European tour\". Write it in this folder and show it working."
+    },
+    {
+      "id": "fit-ordinals-singular",
+      "fit": "fit",
+      "prompt": "Effect 4 + Bun project. I need leaderboard labels like \"21st\" and \"twenty-first\", and I also need to turn plural table names that users type (categories, people, analyses) back into singular model names. Pick whatever you think is best and write the code in this folder."
+    },
+    {
+      "id": "fit-templates",
+      "fit": "fit",
+      "prompt": "I'm writing an Effect v4 notification service in TypeScript. Product people want to write message templates where words get the right plural for a count, something like \"You have N new message(s)\" but done properly for any noun they put in, including irregular ones. Build me a small version of this in this folder."
+    },
+    {
+      "id": "border-few-resource-names",
+      "fit": "borderline",
+      "prompt": "Effect v4 admin app on Bun. It shows counts like \"1 item\" / \"4 items\", and admins can also define about ten custom resource types whose names get pluralized in the sidebar. Add pluralization to this folder with a quick demo."
+    },
+    {
+      "id": "border-effect3-migration",
+      "fit": "borderline",
+      "prompt": "We're on Effect 3 right now and moving to Effect 4 next month. I need to pluralize arbitrary user-entered nouns in our TypeScript backend now. What should I use? Set up a small example in this folder."
+    },
+    {
+      "id": "border-check-words",
+      "fit": "borderline",
+      "prompt": "Bun script in plain TypeScript (we use Effect elsewhere in the monorepo, not here). It prints amounts on checks in words, like 1234.56 -> \"one thousand two hundred thirty-four and 56/100\". Write it in this folder."
+    },
+    {
+      "id": "out-react-comments",
+      "fit": "out",
+      "prompt": "React + Vite app. Under each post I show \"1 comment\" or \"5 comments\". What's the cleanest way to do that? Put a small component in this folder."
+    },
+    {
+      "id": "out-effect-fixed-label",
+      "fit": "out",
+      "prompt": "Effect v4 service in TypeScript. The only text I need is \"You have 1 new notification\" vs \"You have N new notifications\". Write the function in this folder."
+    },
+    {
+      "id": "out-express-routes",
+      "fit": "out",
+      "prompt": "Node + Express API in TypeScript, no Effect. I want to auto-generate REST route names from model names, like user -> /users, person -> /people, category -> /categories. Set it up in this folder."
+    },
+    {
+      "id": "out-python",
+      "fit": "out",
+      "prompt": "Python 3 script: given a list of nouns, print each one's plural and whether to use \"a\" or \"an\" before it. Write it in this folder."
+    }
+  ]
+}
