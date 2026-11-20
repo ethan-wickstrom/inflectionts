@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="inflectionts logo: one word becoming its plural">
+  <rect width="128" height="128" rx="28" fill="#312e81"/>
+  <g fill="none" stroke="#c7d2fe" stroke-width="7" stroke-linecap="round">
+    <path d="M50 64 L64 64"/>
+    <path d="M64 64 C74 64 74 40 85 40"/>
+    <path d="M64 64 C74 64 74 88 85 88"/>
+  </g>
+  <circle cx="34" cy="64" r="14" fill="#f97362"/>
+  <circle cx="98" cy="40" r="11" fill="#f97362"/>
+  <circle cx="98" cy="88" r="11" fill="#f97362"/>
+</svg>

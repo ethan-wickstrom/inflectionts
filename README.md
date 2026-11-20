@@ -1,4 +1,11 @@
-# inflectionts
+<p align="center"><img src="https://raw.githubusercontent.com/ethan-wickstrom/inflectionts/main/assets/logo.svg" width="96" height="96" alt=""></p>
+
+<h1 align="center">inflectionts</h1>
+
+<p align="center">
+  <a href="https://github.com/ethan-wickstrom/inflectionts/actions/workflows/check.yml"><img src="https://github.com/ethan-wickstrom/inflectionts/actions/workflows/check.yml/badge.svg" alt="check status"></a>
+  <a href="https://github.com/ethan-wickstrom/inflectionts/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ethan-wickstrom/inflectionts" alt="MIT license"></a>
+</p>
 
 English inflection for [Effect v4](https://effect.website) programs: plurals, singulars, `a`/`an`, ordinals, number words, and count-aware templates for words you don't know in advance. A TypeScript port of Python's [inflect](https://github.com/jaraco/inflect).
 
@@ -47,18 +54,18 @@ Don't use it when:
 
 ## Documentation
 
-- [Tutorial](docs/tutorial.md): write your first program, from install to a sentence that reads naturally.
-- [How-to guides](docs/how-to.md): label counts, pick `a` or `an`, ordinals, singular names, money in words, templates, custom words, errors, and calling from non-Effect code.
-- [Explanation](docs/explanation.md): why it's an Effect service, how state is isolated, modern versus classical plurals, and how it relates to Python's inflect.
-- API reference: every export is documented in [`src/Inflector.ts`](packages/inflectionts/src/Inflector.ts), [`src/Schema.ts`](packages/inflectionts/src/Schema.ts), and [`src/Errors.ts`](packages/inflectionts/src/Errors.ts), with an example that runs in CI. `bun run docs` renders it to Markdown.
-- [Contributing](CONTRIBUTING.md): set up, test, change word lists, and release.
+- [Tutorial](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/tutorial.md): write your first program, from install to a sentence that reads naturally.
+- [How-to guides](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/how-to.md): label counts, pick `a` or `an`, ordinals, singular names, money in words, templates, custom words, errors, and calling from non-Effect code.
+- [Explanation](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/explanation.md): why it's an Effect service, how state is isolated, modern versus classical plurals, and how it relates to Python's inflect.
+- API reference: every export is documented in [`src/Inflector.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Inflector.ts), [`src/Schema.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Schema.ts), and [`src/Errors.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Errors.ts), with an example that runs in CI. `bun run docs` renders it to Markdown.
+- [Contributing](https://github.com/ethan-wickstrom/inflectionts/blob/main/CONTRIBUTING.md): set up, test, change word lists, and release.
 
-There is also a command-line tool in [`apps/cli`](apps/cli): `nix run github:ethan-wickstrom/inflectionts -- plural person`.
+There is also a command-line tool in [`apps/cli`](https://github.com/ethan-wickstrom/inflectionts/tree/main/apps/cli): `nix run github:ethan-wickstrom/inflectionts -- plural person`.
 
 ## Compatibility with Python's inflect
 
-The test suite ports all 103 of inflect's test functions that apply to TypeScript; [`PARITY.md`](packages/inflectionts/test/upstream/PARITY.md) lists each one and the 19 places where behavior differs on purpose, such as typed errors instead of exceptions.
+The test suite ports all 103 of inflect's test functions that apply to TypeScript; [`PARITY.md`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/test/upstream/PARITY.md) lists each one and the 19 places where behavior differs on purpose, such as typed errors instead of exceptions.
 
 ## License
 
-MIT. Rules, word lists, and test fixtures are ported from inflect, © 2010 Paul Dyson. See [LICENSE](LICENSE).
+MIT. Rules, word lists, and test fixtures are ported from inflect, © 2010 Paul Dyson. See [LICENSE](https://github.com/ethan-wickstrom/inflectionts/blob/main/LICENSE).
