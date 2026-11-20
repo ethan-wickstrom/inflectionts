@@ -16,3 +16,7 @@ if ! command -v nix >/dev/null 2>&1; then
   echo "[resume] Warning: nix not found on PATH" >&2
   exit 1
 fi
+
+if command -v direnv >/dev/null 2>&1 && [[ -f "$repo_root/.envrc" ]]; then
+  direnv allow "$repo_root"
+fi

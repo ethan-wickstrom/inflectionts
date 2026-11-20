@@ -139,6 +139,26 @@ nix fmt                           # format Nix files (excluding repos/)
 nix flake check                   # run offline sandboxed build, check, and packed-consumer verification
 ```
 
+### Development Loop
+
+Enter the pinned toolchain once with `direnv allow` (the committed `.envrc` runs `use flake`) or `nix develop`; a `bun` outside the dev shell may not be the pinned 1.4.5. Tests run against `src/` directly, so no build step is needed before `bun test`.
+
+```sh
+bun test                                    # whole suite (~1s)
+bun test packages/inflectionts/test/numbers.test.ts
+bun test -t "ordinal"                       # filter by test name
+bun test --watch packages/inflectionts      # rerun on save
+bun run apps/cli/src/bin.ts plural person   # run the CLI from source
+bun run format && bun run lint:fix          # autofix formatting and lint
+bun run check                               # what Nix checks run, before committing
+```
+
+Add or bump a dependency by editing the root `catalog` in `package.json` (reference it as `"catalog:"` in the package that imports it), then run `bun install` and `nix run .#lock` and commit `bun.lock` with `nix/bun-cache-hashes.nix`; `nix flake check` fails offline until the hashes match.
+
+### Editor & LSP Setup
+
+The Nix dev shell puts `effect-tsgo-lsp`, `oxlint-lsp`, `oxfmt-lsp`, `nixd`, and `nixfmt` on `PATH`. For VS Code and VS Code-based editors, `.vscode/extensions.json` recommends `oxc.oxc-vscode`, `TypeScriptTeam.native-preview`, `jnoortheen.nix-ide`, and `mkhl.direnv`, and `.vscode/settings.json` wires them to `.vscode/bin/{tsc,oxlint,oxfmt}` (which delegate to the non-patching `@effect/tsgo` and `oxfmt` launchers) and `nixd`/`nixfmt`. Trust the workspace and accept the workspace TypeScript version prompt once so the Effect-patched TypeScript 7 and Oxlint language servers activate.
+
 ### Vendored Reference Source
 
 `repos/effect` is an unmodified, read-only Git subtree of `https://github.com/Effect-TS/effect.git` pinned at tag `effect@4.1.4` (`289a53f7b1fc40049219c6e69022db2fb859c356`), excluded from workspace discovery, TypeScript, Oxlint, Oxfmt, `bun test`, `nix fmt`, and Nix package builds.

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -n "${EFFECT_TSGO_TSDK_DIR:-}" && -x "${EFFECT_TSGO_TSDK_DIR}/tsc" ]]; then
+  exec "${EFFECT_TSGO_TSDK_DIR}/tsc" "$@"
+fi
+
+has_lsp=0
+has_stdio=0
+for arg in "$@"; do
+  case "$arg" in
+    --lsp) has_lsp=1 ;;
+    --stdio) has_stdio=1 ;;
+  esac
+done
+
+if [[ "$has_lsp" -eq 1 && "$has_stdio" -eq 0 ]]; then
+  exec bun run --bun effect-tsgo tsc@7.0.2 "$@" --stdio
+fi
+exec bun run --bun effect-tsgo tsc@7.0.2 "$@"

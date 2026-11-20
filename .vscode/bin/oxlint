@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if command -v oxlint-lsp >/dev/null 2>&1; then
+  exec oxlint-lsp "$@"
+fi
+
+for arg in "$@"; do
+  case "$arg" in
+    --lsp | --version | -V | --help | -h)
+      exec bun run --bun effect-tsgo oxlint "$@"
+      ;;
+  esac
+done
+exec bun run --bun effect-tsgo oxlint --lsp "$@"

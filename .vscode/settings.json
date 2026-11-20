@@ -1,6 +1,32 @@
 {
   "typescript.preferences.autoImportFileExcludePatterns": ["repos/**"],
   "javascript.preferences.autoImportFileExcludePatterns": ["repos/**"],
+  "js/ts.experimental.useTsgo": true,
+  "js/ts.tsdk.path": "./.vscode/bin",
+  "js/ts.tsdk.promptToUseWorkspaceVersion": true,
+  "js/ts.tsdk.additionalLocations": ["./.vscode/bin"],
+  "oxc.enable.oxlint": true,
+  "oxc.enable.oxfmt": true,
+  "oxc.requireConfig": true,
+  "oxc.disableNestedConfig": true,
+  "oxc.fmt.disableNestedConfig": true,
+  "oxc.path.oxlint": ".vscode/bin/oxlint",
+  "oxc.path.oxfmt": ".vscode/bin/oxfmt",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "nix.enableLanguageServer": true,
+  "nix.serverPath": "nixd",
+  "nix.serverSettings": {
+    "nixd": {
+      "formatting": {
+        "command": ["nixfmt"]
+      }
+    }
+  },
+  "[nix]": {
+    "editor.defaultFormatter": "jnoortheen.nix-ide"
+  },
   "files.exclude": {
     "repos/**": true
   },

@@ -26,7 +26,7 @@
     "format:check": "bun run --bun oxfmt --check",
     "lint": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages apps",
     "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages apps",
-    "test": "bun run build && bun test --no-env-file",
+    "test": "bun test --no-env-file",
     "typecheck": "bun run --bun effect-tsgo tsc -b"
   },
   "devDependencies": {

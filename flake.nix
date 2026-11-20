@@ -114,7 +114,48 @@
             name = "oxlint-lsp";
             runtimeInputs = [ bun ];
             text = ''
+              for arg in "$@"; do
+                case "$arg" in
+                  --lsp | --version | -V | --help | -h)
+                    exec bun run --bun effect-tsgo oxlint "$@"
+                    ;;
+                esac
+              done
               exec bun run --bun effect-tsgo oxlint --lsp "$@"
+            '';
+          };
+
+          oxfmtLsp = pkgs.writeShellApplication {
+            name = "oxfmt-lsp";
+            runtimeInputs = [ bun ];
+            text = ''
+              for arg in "$@"; do
+                case "$arg" in
+                  --lsp | --version | -V | --help | -h)
+                    exec bun run --bun oxfmt "$@"
+                    ;;
+                esac
+              done
+              exec bun run --bun oxfmt --lsp "$@"
+            '';
+          };
+
+          vscodeTsdk = pkgs.writeShellApplication {
+            name = "tsc";
+            runtimeInputs = [ bun ];
+            text = ''
+              has_lsp=0
+              has_stdio=0
+              for arg in "$@"; do
+                case "$arg" in
+                  --lsp) has_lsp=1 ;;
+                  --stdio) has_stdio=1 ;;
+                esac
+              done
+              if [[ "$has_lsp" -eq 1 && "$has_stdio" -eq 0 ]]; then
+                exec bun run --bun effect-tsgo tsc@7.0.2 "$@" --stdio
+              fi
+              exec bun run --bun effect-tsgo tsc@7.0.2 "$@"
             '';
           };
 
@@ -346,7 +387,13 @@
               formatter
               effectTsgoLsp
               oxlintLsp
+              oxfmtLsp
             ];
+            shellHook = ''
+              export EFFECT_OXLINT_BIN="${oxlintLsp}/bin/oxlint-lsp"
+              export EFFECT_OXFMT_BIN="${oxfmtLsp}/bin/oxfmt-lsp"
+              export EFFECT_TSGO_TSDK_DIR="${vscodeTsdk}/bin"
+            '';
           };
 
           packages = {

@@ -23,7 +23,7 @@ const runCliExit = (args: ReadonlyArray<string>) =>
     )
   )
 
-const BIN_PATH = new URL("../dist/bin.js", import.meta.url).pathname
+const BIN_PATH = new URL("../src/bin.ts", import.meta.url).pathname
 
 async function runBin(
   args: ReadonlyArray<string>
@@ -117,7 +117,7 @@ describe("inflect CLI (Command.runWith)", () => {
 })
 
 describe("inflect CLI executable (BunServices.layer + BunRuntime.runMain)", () => {
-  test("runs built dist/bin.js end to end and exits non-zero on invalid input", async () => {
+  test("runs src/bin.ts end to end and exits non-zero on invalid input", async () => {
     const ok1 = await runBin(["plural", "person"])
     expect(ok1.exitCode).toBe(0)
     expect(ok1.stdout.trim()).toBe("people")
