@@ -1,0 +1,31 @@
+{
+  "name": "inflectionts",
+  "version": "0.1.0",
+  "description": "Effect v4 TypeScript port of jaraco/inflect for English plurals, singulars, ordinals, indefinite articles, and number words",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build:types": "bun run --bun tsc -b tsconfig.json",
+    "build:js": "bun build ./src/index.ts --outdir ./dist --root ./src --target=node --format=esm --packages=external --sourcemap=linked",
+    "build": "bun run build:types && bun run build:js"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "effect": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
+  }
+}

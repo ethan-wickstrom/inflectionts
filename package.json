@@ -1,0 +1,38 @@
+{
+  "name": "inflectionts-workspace",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "catalog": {
+      "@effect/tsgo": "0.73.2",
+      "@types/bun": "1.4.4",
+      "effect": "4.1.4",
+      "oxfmt": "0.79.0",
+      "oxlint": "1.94.0",
+      "tsrs": "7.1.0-beta.tsrs3",
+      "typescript": "7.0.2"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "build:types": "bun run --bun tsc -b tsconfig.build.json",
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --bun tsc -b tsconfig.json",
+    "lint": "bun run build:types && bun run --bun effect-tsgo --tsrs-lint=7.1.0-beta.tsrs3 oxlint --disable-nested-config --type-aware --type-check --deny-warnings --format=agent packages",
+    "lint:fix": "bun run build:types && bun run --bun effect-tsgo --tsrs-lint=7.1.0-beta.tsrs3 oxlint --disable-nested-config --type-aware --fix packages",
+    "format": "bun run --bun oxfmt",
+    "format:check": "bun run --bun oxfmt --check",
+    "test": "bun run build && bun test --no-env-file",
+    "check": "bun run format:check && bun run typecheck && bun run lint && bun run test"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "catalog:",
+    "@types/bun": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "tsrs": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/inflectionts/tsconfig.json"
+    },
+    {
+      "path": "./packages/inflectionts/tsconfig.test.json"
+    }
+  ]
+}

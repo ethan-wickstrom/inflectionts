@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+step() {
+  local label="$1"
+  shift
+  local start_s end_s
+  start_s="$(date +%s)"
+  echo "[setup] ==> ${label}"
+  "$@"
+  end_s="$(date +%s)"
+  echo "[setup] <== ${label} ($((end_s - start_s))s)"
+}
+
+ensure_nix() {
+  local nix_profile="$HOME/.nix-profile"
+  if [[ -f "$nix_profile/etc/profile.d/nix.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "$nix_profile/etc/profile.d/nix.sh"
+  elif [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
+    # shellcheck disable=SC1091
+    source "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+  fi
+
+  if ! command -v nix >/dev/null 2>&1; then
+    echo "[setup] Nix not found; installing single-user Nix"
+    curl -fsSL https://nixos.org/nix/install | sh -s -- --no-daemon --yes
+    # shellcheck disable=SC1091
+    source "$nix_profile/etc/profile.d/nix.sh"
+  fi
+
+  mkdir -p "$HOME/.config/nix"
+  if ! grep -Eq '^\s*experimental-features\s*=.*flakes' "$HOME/.config/nix/nix.conf" 2>/dev/null \
+    && ! grep -Eq '^\s*experimental-features\s*=.*flakes' /etc/nix/nix.conf 2>/dev/null; then
+    echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
+  fi
+}
+
+persist_nix_dev_env() {
+  local nix_bin
+  nix_bin="$(command -v nix)"
+  local profile_marker="# inflectionts Nix development shell"
+  touch "$HOME/.bash_profile"
+  if ! grep -Fqx "$profile_marker" "$HOME/.bash_profile" 2>/dev/null; then
+    cat >> "$HOME/.bash_profile" <<EOF
+
+$profile_marker
+if [[ -z "\${IN_NIX_SHELL:-}" && "\${PWD}" == "$repo_root" ]]; then
+  eval "\$("$nix_bin" print-dev-env --option warn-dirty false "$repo_root")"
+fi
+EOF
+  fi
+}
+
+step "Ensure Nix with flakes" ensure_nix
+
+# Warm the Nix devShell into /nix/store and activate it in this setup process
+# so all subsequent commands use the flake's pinned Bun 1.4.5 and host tools.
+start_s="$(date +%s)"
+echo "[setup] ==> Activate Nix devShell (pinned Bun 1.4.5)"
+nix_bin="$(command -v nix)"
+eval "$("$nix_bin" print-dev-env --option warn-dirty false "$repo_root")"
+echo "[setup] Active bun: $(command -v bun) ($(bun --version))"
+end_s="$(date +%s)"
+echo "[setup] <== Activate Nix devShell ($((end_s - start_s))s)"
+
+step "Persist Nix devShell hook in ~/.bash_profile" persist_nix_dev_env
+step "Install workspace dependencies from bun.lock" bun install --frozen-lockfile
+step "Build workspace packages and declarations" bun run build
+
+echo "[setup] Complete."

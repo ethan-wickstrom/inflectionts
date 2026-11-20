@@ -1,0 +1,8 @@
+node_modules/
+packages/*/dist/
+apps/*/dist/
+*.tsbuildinfo
+.direnv/
+result
+result-*
+.amp/

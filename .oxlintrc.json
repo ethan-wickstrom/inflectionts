@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/@effect/tsgo/oxlint-schema.json",
+  "extends": ["./node_modules/@effect/tsgo/oxlint-presets/recommended.json"],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
+  "plugins": ["typescript", "oxc", "unicorn", "effecttsgo"],
+  "ignorePatterns": ["repos/**", "**/dist/**", "**/node_modules/**", "result", "result-*"],
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "effecttsgo/any-unknown-in-error-context": "error",
+    "effecttsgo/duplicate-package": "error",
+    "effecttsgo/effect-fn-iife": "error",
+    "effecttsgo/effect-fn-opportunity": "error",
+    "effecttsgo/floating-effect": "error",
+    "effecttsgo/global-error-in-effect-catch": "error",
+    "effecttsgo/global-error-in-effect-failure": "error",
+    "effecttsgo/layer-merge-all-with-dependencies": "error",
+    "effecttsgo/leaking-requirements": "error",
+    "effecttsgo/missing-effect-context": "error",
+    "effecttsgo/missing-effect-error": "error",
+    "effecttsgo/missing-layer-context": "error",
+    "effecttsgo/missing-return-yield-star": "error",
+    "effecttsgo/obsolete-match-import": "error",
+    "effecttsgo/obsolete-schema-import": "error",
+    "effecttsgo/outdated-api": "error",
+    "effecttsgo/promise-in-effect-success": "error",
+    "effecttsgo/unknown-in-effect-catch": "error",
+    "effecttsgo/unsafe-effect-type-assertion": "error"
+  },
+  "overrides": [
+    {
+      "files": ["packages/*/test/**/*.ts"],
+      "rules": {
+        "effecttsgo/unstable-api-usage": "off"
+      }
+    }
+  ]
+}

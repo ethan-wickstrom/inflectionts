@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./test",
+    "noEmit": true,
+    "types": ["bun"]
+  },
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    }
+  ],
+  "include": ["test/**/*.ts"]
+}

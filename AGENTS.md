@@ -13,6 +13,11 @@ You always use the latest compatible stable releases and pin their exact resolut
 - Check the README before adding a reusable helper and document generally useful functions there with their contract and a short example.
 - Keep `.envrc` limited to `use flake`, ignore `.direnv/` and `result` in `.gitignore`, and commit `bun.lock` with `flake.lock`.
 
+## Vendored Repositories
+
+- `repos/effect`: upstream `https://github.com/Effect-TS/effect.git` pinned at tag `effect@4.1.4` (commit `289a53f7b1fc40049219c6e69022db2fb859c356`) via `git subtree add --prefix=repos/effect ... --squash`.
+- Read `repos/effect/LLMS.md` and `agent-patterns/effect-v4.md` before writing Effect v4 code.
+
 ## Code Style
 
 - Make Effect `Schema` the executable definition of external data and derive domain types from it. Decode untrusted inputs once at boundaries, trust the decoded type afterward, model expected rejections with `Schema.TaggedError`, and reserve assertions for established invariants.
