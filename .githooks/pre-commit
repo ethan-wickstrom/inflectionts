@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Run the same gates as `nix flake check` before each commit; the project remote
+# runs no CI. Installed by the Nix dev shell via `core.hooksPath`. Skip once with
+# `git commit --no-verify`.
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+
+if [[ -n "${IN_NIX_SHELL:-}" ]]; then
+  exec bun run check
+elif command -v direnv >/dev/null 2>&1; then
+  exec direnv exec . bun run check
+else
+  exec nix develop -c bun run check
+fi

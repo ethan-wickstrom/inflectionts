@@ -393,6 +393,9 @@
               export EFFECT_OXLINT_BIN="${oxlintLsp}/bin/oxlint-lsp"
               export EFFECT_OXFMT_BIN="${oxfmtLsp}/bin/oxfmt-lsp"
               export EFFECT_TSGO_TSDK_DIR="${vscodeTsdk}/bin"
+              if [ -x .githooks/pre-commit ] && [ "$(git config --local core.hooksPath 2>/dev/null)" != ".githooks" ]; then
+                git config --local core.hooksPath .githooks
+              fi
             '';
           };
 

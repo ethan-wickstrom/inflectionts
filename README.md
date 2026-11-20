@@ -149,9 +149,11 @@ bun test packages/inflectionts/test/numbers.test.ts
 bun test -t "ordinal"                       # filter by test name
 bun test --watch packages/inflectionts      # rerun on save
 bun run apps/cli/src/bin.ts plural person   # run the CLI from source
-bun run format && bun run lint:fix          # autofix formatting and lint
+bun run fix                                 # autofix lint, then formatting
 bun run check                               # what Nix checks run, before committing
 ```
+
+Entering the dev shell sets `core.hooksPath` to `.githooks`, whose `pre-commit` hook runs `bun run check` (a few seconds) because the project remote runs no CI. Skip it for a work-in-progress commit with `git commit --no-verify`.
 
 Add or bump a dependency by editing the root `catalog` in `package.json` (reference it as `"catalog:"` in the package that imports it), then run `bun install` and `nix run .#lock` and commit `bun.lock` with `nix/bun-cache-hashes.nix`; `nix flake check` fails offline until the hashes match.
 
