@@ -6,3 +6,4 @@ apps/*/dist/
 result
 result-*
 .amp/
+packages/*/dist-pack/

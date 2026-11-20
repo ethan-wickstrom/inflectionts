@@ -37,7 +37,8 @@
   "scripts": {
     "build": "bun run build:types && bun run build:js",
     "build:js": "bun build ./src/index.ts ./src/Errors.ts ./src/Schema.ts ./src/Inflector.ts --outdir ./dist --root ./src --splitting --target=node --format=esm --packages=external --sourcemap=linked",
-    "build:types": "bun run --bun tsc -b tsconfig.src.json"
+    "build:types": "bun run --bun tsc -b tsconfig.src.json",
+    "pack": "bun scripts/pack.ts"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

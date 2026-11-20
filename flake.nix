@@ -48,6 +48,7 @@
               ./.oxlintrc.json
               ./.oxfmtrc.json
               ./README.md
+              ./LICENSE
               ./packages
               ./apps
             ])
@@ -68,15 +69,6 @@
           ./nix
         ];
       };
-
-      promotePublishManifest = pkgs: ''
-        ${lib.getExe pkgs.jq} '
-          if .publishConfig.exports then
-            .exports = .publishConfig.exports | del(.publishConfig.exports)
-          else . end
-        ' packages/inflectionts/package.json > packages/inflectionts/package.json.tmp
-        mv packages/inflectionts/package.json.tmp packages/inflectionts/package.json
-      '';
 
       perSystem = forAllSystems (
         system:
@@ -194,16 +186,13 @@
             buildPhase = ''
               runHook preBuild
               prepare-offline-bun-workspace
-              bun run --filter inflectionts build
-              ${promotePublishManifest pkgs}
+              tarball="$(cd packages/inflectionts && bun scripts/pack.ts "$TMPDIR/pack")"
               runHook postBuild
             '';
             installPhase = ''
               runHook preInstall
               mkdir -p "$out"
-              cp -r packages/inflectionts/dist "$out/dist"
-              cp packages/inflectionts/package.json "$out/package.json"
-              cp README.md "$out/README.md"
+              tar -xzf "$tarball" -C "$out" --strip-components=1
               runHook postInstall
             '';
           };
@@ -265,13 +254,8 @@
           '';
 
           packageConsumerCheck = mkSandboxedCheck "package-consumer" ''
-            bun run --filter inflectionts build
-            ${promotePublishManifest pkgs}
-
-            pack_dir="$(mktemp -d)"
-            (cd packages/inflectionts && bun pm pack --destination "$pack_dir")
-            tarball="$(find "$pack_dir" -maxdepth 1 -name '*.tgz' | head -n 1)"
-            test -n "$tarball"
+            tarball="$(cd packages/inflectionts && bun scripts/pack.ts "$(mktemp -d)")"
+            test -f "$tarball"
 
             consumer_dir="$(mktemp -d)"
             mkdir -p "$consumer_dir/node_modules/inflectionts"
