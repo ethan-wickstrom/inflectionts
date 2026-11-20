@@ -83,6 +83,7 @@ category
 ## Constraints
 
 - Defaults: modern plurals (`cactuses`), British "and" in number words, `a FAQ` (acronyms read as words). Change them with `classical`, `{ andword: "" }`, and `defan("FAQ")`.
+- Pass singular words. `pluralNoun("cats")` gives `"catss"`, and `singularNoun` is not a safe normalizer (`"bus"` becomes `"bu"`), so store or ask for the singular form.
 - Errors are typed: an empty word fails with `InvalidWordError`. Handle with `Effect.catchTag`.
 - Settings and custom rules belong to one provided layer; they do not leak between programs. From non-Effect code, create one `ManagedRuntime.make(Inflector.layer)` and call `runSync`.
 

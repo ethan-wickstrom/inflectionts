@@ -2,6 +2,24 @@
   "name": "inflectionts",
   "version": "0.1.0",
   "description": "Effect v4 TypeScript port of jaraco/inflect for English plurals, singulars, ordinals, indefinite articles, and number words",
+  "keywords": [
+    "a-an",
+    "bun",
+    "effect",
+    "effect-ts",
+    "english",
+    "indefinite-article",
+    "inflect",
+    "inflection",
+    "nlp",
+    "number-to-words",
+    "ordinal",
+    "plural",
+    "pluralize",
+    "singular",
+    "singularize",
+    "typescript"
+  ],
   "homepage": "https://github.com/ethan-wickstrom/inflectionts#readme",
   "bugs": {
     "url": "https://github.com/ethan-wickstrom/inflectionts/issues"

@@ -43,6 +43,30 @@ no Mice
 
 To get only the word without the count, use `plural(word, count)`.
 
+Pass the **singular** form. Like Python's inflect, the plural functions assume their input is singular. An already-plural word gets a second ending from `pluralNoun`, and `plural` may read it as a verb instead:
+
+```ts
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import { Inflector, plural, pluralNoun } from "inflectionts"
+
+const program = Effect.gen(function* () {
+  yield* Console.log(yield* pluralNoun("cats"))
+  yield* Console.log(yield* pluralNoun("people"))
+  yield* Console.log(yield* plural("cats"))
+})
+
+Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
+```
+
+```output
+catss
+peoples
+cat
+```
+
+Running input through `singularNoun` first is not a safe fix: it also changes words that are already singular, such as "analysis" to "analysi" and "bus" to "bu". Store the singular name when users create a collection, or ask for it.
+
 ## Put "a" or "an" before a word
 
 `a` (also exported as `an`) chooses by pronunciation, including silent "h", "u" pronounced "you", and abbreviations read letter by letter.
