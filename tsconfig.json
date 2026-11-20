@@ -6,6 +6,12 @@
     },
     {
       "path": "./packages/inflectionts/tsconfig.test.json"
+    },
+    {
+      "path": "./apps/cli/tsconfig.src.json"
+    },
+    {
+      "path": "./apps/cli/tsconfig.test.json"
     }
   ]
 }

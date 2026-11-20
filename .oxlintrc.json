@@ -51,7 +51,7 @@
       }
     },
     {
-      "files": ["packages/*/test/**/*.ts"],
+      "files": ["apps/*/src/**/*.ts", "apps/*/test/**/*.ts", "packages/*/test/**/*.ts"],
       "rules": {
         "effecttsgo/api-stability-leak": "off",
         "effecttsgo/unstable-api-usage": "off"

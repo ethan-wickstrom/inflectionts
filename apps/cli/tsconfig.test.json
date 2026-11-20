@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun"]
+  },
+  "references": [
+    {
+      "path": "./tsconfig.src.json"
+    },
+    {
+      "path": "../../packages/inflectionts/tsconfig.src.json"
+    }
+  ],
+  "include": ["test/**/*.ts"]
+}

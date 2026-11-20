@@ -30,6 +30,7 @@
           ./bun.lock
           ./bunfig.toml
           ./packages/inflectionts/package.json
+          ./apps/cli/package.json
         ];
       };
 
@@ -48,11 +49,14 @@
               ./.oxfmtrc.json
               ./README.md
               ./packages
+              ./apps
             ])
             (
               lib.fileset.unions [
                 (lib.fileset.maybeMissing ./packages/inflectionts/dist)
+                (lib.fileset.maybeMissing ./apps/cli/dist)
                 (lib.fileset.fileFilter (file: lib.hasSuffix ".tsbuildinfo" file.name) ./packages)
+                (lib.fileset.fileFilter (file: lib.hasSuffix ".tsbuildinfo" file.name) ./apps)
               ]
             );
       };
@@ -94,6 +98,7 @@
               "repos/**"
               "node_modules/**"
               "packages/*/dist/**"
+              "apps/*/dist/**"
             ];
           };
 
@@ -148,7 +153,7 @@
             buildPhase = ''
               runHook preBuild
               prepare-offline-bun-workspace
-              bun run build
+              bun run --filter inflectionts build
               ${promotePublishManifest pkgs}
               runHook postBuild
             '';
@@ -161,6 +166,48 @@
               runHook postInstall
             '';
           };
+
+          cliPkg = pkgs.stdenvNoCC.mkDerivation {
+            pname = "inflect-cli";
+            version = "0.1.0";
+            src = projectSrc;
+            dontConfigure = true;
+            dontFixup = true;
+            nativeBuildInputs = [
+              bun
+              bunDeps.prepareOfflineWorkspace
+              pkgs.makeWrapper
+              pkgs.writableTmpDirAsHomeHook
+            ];
+            buildPhase = ''
+              runHook preBuild
+              prepare-offline-bun-workspace
+              bun build apps/cli/src/bin.ts \
+                --outfile apps/cli/dist/inflect.js \
+                --target=bun \
+                --format=esm \
+                --minify
+              runHook postBuild
+            '';
+            installPhase = ''
+              runHook preInstall
+              mkdir -p "$out/libexec/inflect" "$out/bin"
+              cp apps/cli/dist/inflect.js "$out/libexec/inflect/inflect.js"
+              makeWrapper "${lib.getExe bun}" "$out/bin/inflect" \
+                --add-flags "--no-env-file" \
+                --add-flags "$out/libexec/inflect/inflect.js"
+              runHook postInstall
+            '';
+            meta.mainProgram = "inflect";
+          };
+
+          cliSmokeCheck = pkgs.runCommand "inflectionts-cli-smoke" { } ''
+            test "$("${lib.getExe cliPkg}" plural person)" = "people"
+            test "$("${lib.getExe cliPkg}" --classical-ancient plural formula)" = "formulae"
+            test "$("${lib.getExe cliPkg}" currency 2.675)" = "two and 68/100"
+            test "$("${lib.getExe cliPkg}" template "There plural_verb('was',2) no('error',2)")" = "There were 2 errors"
+            touch "$out"
+          '';
 
           bunVersionCheck = pkgs.runCommand "inflectionts-bun-version" { nativeBuildInputs = [ bun ]; } ''
             actual="$(bun --version)"
@@ -177,7 +224,7 @@
           '';
 
           packageConsumerCheck = mkSandboxedCheck "package-consumer" ''
-            bun run build
+            bun run --filter inflectionts build
             ${promotePublishManifest pkgs}
 
             pack_dir="$(mktemp -d)"
@@ -303,7 +350,8 @@
           };
 
           packages = {
-            default = inflectiontsPkg;
+            default = cliPkg;
+            cli = cliPkg;
             inflectionts = inflectiontsPkg;
             lock = bunDeps.lockPkg;
           };
@@ -315,10 +363,17 @@
         {
           inherit formatter packages devShells;
 
-          apps.lock = {
-            type = "app";
-            program = "${bunDeps.lockPkg}/bin/lock";
-            meta.description = "Regenerate nix/bun-cache-hashes.nix from bun.lock";
+          apps = {
+            default = {
+              type = "app";
+              program = "${lib.getExe cliPkg}";
+              meta.description = "Run the inflectionts English inflection CLI";
+            };
+            lock = {
+              type = "app";
+              program = "${bunDeps.lockPkg}/bin/lock";
+              meta.description = "Regenerate nix/bun-cache-hashes.nix from bun.lock";
+            };
           };
 
           checks =
@@ -326,6 +381,7 @@
             // asChecks "dev-shell" devShells
             // {
               bun-version = bunVersionCheck;
+              cli-smoke = cliSmokeCheck;
               nixfmt = nixfmtCheck;
               format = mkSandboxedCheck "format" "bun run format:check";
               typecheck = mkSandboxedCheck "typecheck" "bun run typecheck";

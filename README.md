@@ -108,6 +108,25 @@ Package exports are exposed from `"inflectionts"` and subpath modules `"inflecti
 - Errors (`Schema.TaggedError`): `InvalidWordError`, `UnknownClassicalModeError`, `BadNumValueError`, `BadChunkingOptionError`, `NumOutOfRangeError`, `BadUserDefinedPatternError`, `BadGenderError`, `InflectTemplateError`
 - Pure helpers & dual state combinators: `comparisonCode(result)`, `enclose(s)`, `joinstem(cutpoint, words)`, `bysize(words)`, `partitionWord(text)`, `postprocess(orig, inflected, state)`, `udMatch(word, entries)`, `applyClassical`, `applyGender`, `applyNum`, `applyDefNoun`, `applyDefVerb`, `applyDefAdj`, `applyDefArticle`
 
+## CLI (`apps/cli`)
+
+An executable CLI built with `effect/cli`, `BunServices.layer`, and `BunRuntime.runMain` lives in `apps/cli` and is exposed as the default Nix package/app (`nix run . -- ...`):
+
+```sh
+nix run . -- plural person                                      # people
+nix run . -- --classical-ancient plural formula                 # formulae
+nix run . -- --gender feminine singular they                    # she
+nix run . -- compare index indices                              # s:p
+nix run . -- article hour                                       # an hour
+nix run . -- no error --count 0                                 # no errors
+nix run . -- participle panics                                  # panicking
+nix run . -- ordinal 21                                         # 21st
+nix run . -- words 1234 --andword ""                            # one thousand, two hundred thirty-four
+nix run . -- currency 2.675                                     # two and 68/100
+nix run . -- join apple banana carrot --conj or                 # apple, banana, or carrot
+nix run . -- template "There plural_verb('was',2) no('error',2)" # There were 2 errors
+```
+
 ## Toolchain & Verification
 
 Host tools are managed by `flake.nix` (pinned `nixos-26.05` + pinned Bun `1.4.5`). Workspace dependencies are pinned in `package.json` catalog and `bun.lock` (`effect@4.1.4`, `typescript@7.0.2`, `oxlint@1.94.0`, `oxfmt@0.79.0`, `tsrs@7.1.0-beta.tsrs3`, `@effect/tsgo@0.73.2`).

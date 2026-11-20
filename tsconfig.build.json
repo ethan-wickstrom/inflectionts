@@ -3,6 +3,9 @@
   "references": [
     {
       "path": "./packages/inflectionts/tsconfig.src.json"
+    },
+    {
+      "path": "./apps/cli/tsconfig.src.json"
     }
   ]
 }

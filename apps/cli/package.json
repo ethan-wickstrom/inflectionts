@@ -1,0 +1,28 @@
+{
+  "name": "@inflectionts/cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Command-line interface for inflectionts built with effect/cli and @effect/platform-bun",
+  "license": "MIT",
+  "bin": {
+    "inflect": "./dist/bin.js"
+  },
+  "type": "module",
+  "exports": {
+    "./Cli": "./src/Cli.ts"
+  },
+  "scripts": {
+    "build": "bun run build:types && bun run build:js",
+    "build:js": "bun build ./src/bin.ts --outdir ./dist --root ./src --target=bun --format=esm --packages=external --sourcemap=linked",
+    "build:types": "bun run --bun tsc -b tsconfig.src.json"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "catalog:",
+    "effect": "catalog:",
+    "inflectionts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

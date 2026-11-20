@@ -3,9 +3,11 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "apps/*"
     ],
     "catalog": {
+      "@effect/platform-bun": "4.1.4",
       "@effect/tsgo": "0.73.2",
       "@types/bun": "1.4.4",
       "effect": "4.1.4",
@@ -22,8 +24,8 @@
     "check": "bun run format:check && bun run typecheck && bun run lint && bun run test",
     "format": "bun run --bun oxfmt",
     "format:check": "bun run --bun oxfmt --check",
-    "lint": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages",
-    "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages",
+    "lint": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --type-check --deny-warnings --report-unused-disable-directives --format=agent packages apps",
+    "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages apps",
     "test": "bun run build && bun test --no-env-file",
     "typecheck": "bun run --bun effect-tsgo tsc -b"
   },
