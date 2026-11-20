@@ -1,0 +1,24 @@
+# inflectionts
+
+> English inflection for Effect v4 TypeScript programs: plurals, singulars, a/an, ordinals, number words, check amounts, and count-aware templates, for words not known in advance. A port of Python's inflect. Install with `bun add inflectionts effect`; `effect` ^4.1.4 is a peer dependency. Not for fixed count labels (use Intl.PluralRules), projects without Effect (use pluralize), or languages other than English.
+
+## Start here
+
+- [README](https://github.com/ethan-wickstrom/inflectionts/blob/main/README.md): what it does, install, a runnable example with its output, and when not to use it (~830 tokens)
+- [Agent skill](https://github.com/ethan-wickstrom/inflectionts/blob/main/skills/inflectionts/SKILL.md): when to choose it, an operation table, defaults, and constraints (~1,040 tokens)
+
+## Tasks
+
+- [How-to guides](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/how-to.md): label counts with any noun, choose a or an, ordinals and number words, plural names back to singular, amounts on checks, user-written templates, Latin plurals, custom words, typed errors, calling from non-Effect code (~2,330 tokens)
+- [Tutorial](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/tutorial.md): build "There were two hundred and forty-three errors in 12 files" step by step (~760 tokens)
+
+## Reference
+
+- [Inflector.ts](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Inflector.ts): the Inflector service, its layers, and every operation, each with a tested example
+- [Schema.ts](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Schema.ts): option types, state, and schemas
+- [Errors.ts](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Errors.ts): the eight tagged error classes
+
+## Background
+
+- [Explanation](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/explanation.md): why every call is an Effect, state isolation, modern versus classical plurals, articles (~990 tokens)
+- [PARITY.md](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/test/upstream/PARITY.md): each of Python inflect's 103 test functions and how it is covered here

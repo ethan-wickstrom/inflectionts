@@ -50,6 +50,7 @@
               ./README.md
               ./LICENSE
               ./docs
+              ./skills
               ./packages
               ./apps
             ])

@@ -1,7 +1,8 @@
 /**
  * Type-check and run every TypeScript code block in the user documentation.
  *
- * Reads `README.md` and every Markdown file in `docs/` at the repository root. Each fenced
+ * Reads `README.md`, `skills/inflectionts/SKILL.md`, and every Markdown file in `docs/` at the
+ * repository root. Each fenced
  * block whose info string is `ts` is written to a scoped temporary directory inside this
  * package (so `inflectionts` and `effect` resolve as they do for users), type-checked with
  * the repository's TypeScript in strict mode, and run with Bun. When the next fenced block
@@ -89,6 +90,7 @@ const checkDocs = Effect.fn("checkDocs")(function* () {
 
   const sources = [
     "README.md",
+    "skills/inflectionts/SKILL.md",
     ...(yield* fs.readDirectory(docsDir))
       .filter((name) => name.endsWith(".md"))
       .toSorted()
