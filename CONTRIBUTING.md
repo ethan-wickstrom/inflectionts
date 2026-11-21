@@ -9,7 +9,7 @@ bun run check
 
 That one command checks the toolchain, installs dependencies from `bun.lock`, and runs every gate. It needs Bun 1.4.5 (the `packageManager` field in `package.json`); with any other version or no Bun, it stops and prints how to install the right one.
 
-With [Nix](https://nixos.org/download), `direnv allow` or `nix develop` gives you the pinned Bun and the editor language servers, and points `core.hooksPath` at `.githooks` so every commit runs `bun run check` first. Skip the hook once with `git commit --no-verify`.
+With [Nix](https://nixos.org/download/), `direnv allow` or `nix develop` gives you the pinned Bun and the editor language servers, and points `core.hooksPath` at `.githooks` so every commit runs `bun run check` first. Skip the hook once with `git commit --no-verify`.
 
 ## Layout
 

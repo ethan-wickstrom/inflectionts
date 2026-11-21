@@ -18,6 +18,7 @@ import * as Effect from "effect/Effect"
 import * as FileSystem from "effect/FileSystem"
 import { FetchHttpClient, HttpClient } from "effect/http"
 import * as Path from "effect/Path"
+import * as Schedule from "effect/Schedule"
 import * as Schema from "effect/Schema"
 
 class LinksCheckError extends Schema.TaggedError<
@@ -156,6 +157,8 @@ const checkLinks = Effect.fn("checkLinks")(function* (options: { readonly extern
       (url) =>
         client.get(probeUrl(url), { headers: { "user-agent": "inflectionts-link-check" } }).pipe(
           Effect.timeout("20 seconds"),
+          // One slow answer from a busy site should not fail CI; a dead link fails all three tries.
+          Effect.retry({ times: 2, schedule: Schedule.exponential("2 seconds") }),
           Effect.as(undefined),
           Effect.catch((error) => Effect.succeed(`${url}: ${error.message}`))
         ),
