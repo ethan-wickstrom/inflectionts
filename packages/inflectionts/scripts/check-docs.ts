@@ -13,7 +13,7 @@
  */
 import * as BunRuntime from "@effect/platform-bun/BunRuntime"
 import * as BunServices from "@effect/platform-bun/BunServices"
-import { Command } from "effect/cli"
+import { CliError, Command } from "effect/cli"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as FileSystem from "effect/FileSystem"
@@ -25,7 +25,12 @@ import * as Stream from "effect/Stream"
 class DocsCheckError extends Schema.TaggedError<
   DocsCheckError,
   { readonly brand: unique symbol }
->()("DocsCheckError", { message: Schema.String }) {}
+>()("DocsCheckError", { message: Schema.String }) {
+  // Command.run prints the message alone instead of logging a stack trace.
+  override get [CliError.userMessage]() {
+    return this.message
+  }
+}
 
 interface Block {
   readonly source: string
@@ -132,7 +137,7 @@ const checkDocs = Effect.fn("checkDocs")(function* () {
   const relabel = (text: string) =>
     blocks.reduce(
       (out, block) => out.replaceAll(path.basename(fileOf(block)), `${block.source}:${block.line}`),
-      text
+      text.replaceAll(`${path.basename(dir)}/`, "")
     )
   const tsc = yield* exec(packageDir, "bun", ["run", "--bun", "tsc", "-p", dir])
   if (tsc.exitCode !== 0) {

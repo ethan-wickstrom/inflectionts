@@ -31,7 +31,7 @@ octopodes
 octopuses
 ```
 
-Every operation therefore has the type `Effect<string, SomeError, Inflector>`. The `Inflector` in the third position is the requirement; the program can't run until a layer supplies it. Provide it once at the edge of your application, not around each call, so settings you change apply to the rest of that program.
+Every operation therefore has the type `Effect<A, E, Inflector>`: `A` is the result (a string for most operations, an `Option` for `singularNoun`), `E` lists the typed errors it can fail with. The `Inflector` in the third position is the requirement; the program can't run until a layer supplies it. Provide it once at the edge of your application, not around each call, so settings you change apply to the rest of that program.
 
 ## About errors
 
@@ -39,7 +39,7 @@ Invalid input, such as an empty word, an unknown classical mode, or a malformed 
 
 ## About pure state functions
 
-`applyClassical`, `applyGender`, `applyNum`, `applyDefNoun`, `applyDefVerb`, `applyDefAdj`, and `applyDefArticle` take an `InflectorState` and return a new one without touching any service. Use them to build a starting configuration once and provide it with `Inflector.layerWith(state)`. Each accepts the state first (`applyGender(state, "feminine")`) or last (`applyGender("feminine")(state)`) for use in pipelines.
+`applyClassical`, `applyGender`, `applyNum`, `applyDefNoun`, `applyDefVerb`, `applyDefAdj`, and `applyDefArticle` take an `InflectorState` and return a new one without touching any service. They exist because a starting configuration is data: building it needs no running `Inflector`, so it can be made once and shared by every program ([how-to](how-to.md#start-every-program-with-the-same-rules)). Each accepts the state first (`applyGender(state, "feminine")`) or last (`applyGender("feminine")(state)`) for use in pipelines.
 
 ## About modern and classical plurals
 

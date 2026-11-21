@@ -41,7 +41,6 @@ import {
   pluralVerb,
   presentParticiple,
   singularNoun,
-  udMatch,
   UnknownClassicalModeError,
   type ComparisonCode,
   type ComparisonResult,
@@ -49,6 +48,8 @@ import {
   type InflectError,
   type NumberToWordsOptions
 } from "inflectionts"
+
+import { udMatch } from "#internal/helpers"
 
 import { runInflector } from "../helpers.ts"
 

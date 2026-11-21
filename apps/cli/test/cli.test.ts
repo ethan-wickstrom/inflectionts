@@ -53,7 +53,7 @@ describe("inflect CLI (Command.runWith)", () => {
     const alreadySingular = await runCliExit(["singular", "horse"])
     expect(Exit.isFailure(alreadySingular)).toBe(true)
     if (Exit.isFailure(alreadySingular) && alreadySingular.cause.reasons[0]?._tag === "Fail") {
-      expect(alreadySingular.cause.reasons[0].error).toBeInstanceOf(AlreadySingularError)
+      expect(alreadySingular.cause.reasons[0].error.cause).toBeInstanceOf(AlreadySingularError)
     }
 
     expect(await runCli(["compare", "index", "indices"])).toEqual(["s:p"])
@@ -135,6 +135,8 @@ describe("inflect CLI executable (BunServices.layer + BunRuntime.runMain)", () =
     expect(help.stdout).toContain("inflect")
 
     const bad = await runBin(["singular", "horse"])
-    expect(bad.exitCode).not.toBe(0)
+    expect(bad.exitCode).toBe(1)
+    expect(bad.stderr).toContain("'horse' is already singular")
+    expect(bad.stderr).not.toContain("    at ")
   })
 })

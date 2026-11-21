@@ -10,6 +10,7 @@ Each guide assumes `inflectionts` and `effect` are installed (see the [README](.
 - [Let other people write count-aware templates](#let-other-people-write-count-aware-templates)
 - [Use Latin and Greek plurals](#use-latin-and-greek-plurals)
 - [Teach it a word it gets wrong](#teach-it-a-word-it-gets-wrong)
+- [Start every program with the same rules](#start-every-program-with-the-same-rules)
 - [Handle invalid input](#handle-invalid-input)
 - [Call it from code that doesn't use Effect](#call-it-from-code-that-doesnt-use-effect)
 
@@ -124,7 +125,7 @@ one thousand, two hundred thirty-four
 
 ## Turn a plural name back into a singular
 
-`singularNoun` returns an `Option`: `Some` with the singular, or `None` when the word is already singular.
+`singularNoun` returns an `Option`: `Some` with the singular, or `None` when it recognizes the word as already singular. A singular word ending in "s" can come back wrong ("bus" gives `Some("bu")`), so call it only on words you know are plural.
 
 ```ts
 import * as Console from "effect/Console"
@@ -175,7 +176,7 @@ two and 68/100
 
 ## Let other people write count-aware templates
 
-`inflect` evaluates calls such as `plural('word')`, `no('word', n)`, `a('word')`, `ordinal(n)`, and `num(n)` inside a string. `num(n)` prints `n` and sets the count for the calls after it in the same template.
+`inflect` evaluates calls inside a string. The names use inflect's snake_case: `plural`, `plural_noun`, `plural_verb`, `plural_adj`, `singular_noun`, `a`, `an`, `no`, `present_participle`, `ordinal`, `number_to_words`, and `num`. `num(n)` prints `n` and sets the count for the calls after it in the same template.
 
 ```ts
 import * as Console from "effect/Console"
@@ -197,7 +198,7 @@ You have 3 new messages from children
 You have 1 new message from child
 ```
 
-A template with a syntax error or an unknown function fails with `InflectTemplateError`. Templates are parsed, not evaluated as JavaScript.
+Text that isn't a call to one of those names, including camelCase names such as `pluralVerb(...)` and unclosed calls, is left in the output unchanged. A known call with a bad argument, such as `plural(x)`, fails with `InflectTemplateError`. Templates are parsed, not evaluated as JavaScript.
 
 ## Use Latin and Greek plurals
 
@@ -224,7 +225,7 @@ cacti
 formulae
 ```
 
-Other modes: `herd` ("wildebeest" stays "wildebeest"), `persons` ("person" becomes "persons"), `zero` ("0 error"), `names`, and `all`.
+Other modes: `herd` ("wildebeest" stays "wildebeest"), `persons` ("person" becomes "persons"), `zero` ("0 error"), and `names` ("Jones" becomes "Joneses"; the only mode on by default). `classical()` with no argument turns every mode on, and `classical({ all: false })` turns them all off.
 
 ## Teach it a word it gets wrong
 
@@ -253,7 +254,38 @@ VAXen
 an FAQ
 ```
 
-Rules live in the `Inflector` you provided, so they don't leak into other programs. To start every program with the same rules, build the state once with `applyDefNoun` and friends and provide `Inflector.layerWith(state)`.
+Rules live in the `Inflector` you provided, so they don't leak into other programs.
+
+## Start every program with the same rules
+
+Build the starting state once with the pure `apply*` functions, then provide it with `Inflector.layerWith`. Every program that uses that layer starts with your rules.
+
+```ts
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import { applyClassical, applyDefNoun, defaultState, Inflector, pluralNoun } from "inflectionts"
+
+const InflectorWithHouseRules = Effect.gen(function* () {
+  const withOctopodes = yield* applyDefNoun(defaultState, "octopus", "octopodes")
+  return Inflector.layerWith(yield* applyClassical(withOctopodes, { ancient: true }))
+})
+
+const program = Effect.gen(function* () {
+  yield* Console.log(yield* pluralNoun("octopus"))
+  yield* Console.log(yield* pluralNoun("formula"))
+})
+
+Effect.runSync(
+  Effect.gen(function* () {
+    yield* program.pipe(Effect.provide(yield* InflectorWithHouseRules))
+  })
+)
+```
+
+```output
+octopodes
+formulae
+```
 
 ## Handle invalid input
 
@@ -295,4 +327,4 @@ await inflector.dispose()
 people
 ```
 
-The runtime keeps one `Inflector`, so rules added with `defnoun` stay in effect for later calls. If the project doesn't use Effect anywhere else, a smaller library such as `pluralize` is probably a better fit.
+The runtime keeps one `Inflector`, so rules added with `defnoun` stay in effect for later calls. If the project doesn't use Effect anywhere else, see [when not to use it](../README.md#when-to-use-it-and-when-not-to).

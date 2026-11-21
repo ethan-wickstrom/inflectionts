@@ -133,10 +133,10 @@ const parseGender = Effect.fnUntraced(function* (
 ): Effect.fn.Return<Gender, BadGenderError> {
   return yield* decodeGenderEffect(input).pipe(
     Effect.mapError(
-      (err) =>
+      () =>
         new BadGenderError({
           gender: input,
-          message: err.message
+          message: `Invalid gender '${input}'; expected one of: ${Gender.literals.join(", ")}`
         })
     )
   )
@@ -191,7 +191,7 @@ const applyClassicalImpl = Effect.fnUntraced(function* (
     if (!CLASSICAL_MODES.has(key)) {
       return yield* new UnknownClassicalModeError({
         mode: key,
-        message: `Unknown classical mode '${key}'`
+        message: `Unknown classical mode '${key}'; expected one of: ${[...CLASSICAL_MODES].join(", ")}`
       })
     }
     next = { ...next, [key]: value }
@@ -1044,7 +1044,9 @@ export const pluralAdj = Effect.fnUntraced(function* (text: string, count?: Coun
 })
 
 /**
- * Return the singular form of a plural noun or pronoun, or `Option.none()` if already singular.
+ * Return the singular form of a plural noun or pronoun, or `Option.none()` when the word is
+ * recognized as already singular. Singular words ending in "s" can come back wrong (`"bus"` gives
+ * `Some("bu")`), so call it only on words known to be plural.
  *
  * @example
  * ```ts
@@ -1175,7 +1177,9 @@ export const compareAdjs = Effect.fnUntraced(function* (word1: string, word2: st
 })
 
 /**
- * Prefix a word with the pronunciation-appropriate indefinite article (`"a"` or `"an"`), or the count when not singular.
+ * Prefix a word with the pronunciation-appropriate indefinite article (`"a"` or `"an"`), or with
+ * the count when `count` is not singular. The word itself is not pluralized (`a("cat", 3)` gives
+ * `"3 cat"`); use `no` for a count plus a matching plural.
  *
  * @example
  * ```ts
@@ -1249,6 +1253,10 @@ export const no = Effect.fnUntraced(function* (text: string, count?: CountInput)
 
 /**
  * Set or clear the persistent default count on the active `Inflector` service.
+ *
+ * `count` is the new default (an integer or integer string); `null` or no argument clears it. The
+ * result is `count` as text, or `""` when `show` is falsy. Fails with `BadNumValueError` when
+ * `count` is not an integer.
  *
  * @example
  * ```ts
@@ -1444,6 +1452,11 @@ export const join = Effect.fnUntraced(function* (
 /**
  * Evaluate inline inflection calls (such as `plural('cat', 3)`) inside a template string.
  *
+ * Recognized names use inflect's snake_case: `plural`, `plural_noun`, `plural_verb`, `plural_adj`,
+ * `singular_noun`, `a`, `an`, `no`, `present_participle`, `ordinal`, `number_to_words`, and `num`.
+ * Anything else, including camelCase names and unclosed calls, is left in the text unchanged. A
+ * recognized call with a malformed argument fails with `InflectTemplateError`.
+ *
  * @example
  * ```ts
  * import * as assert from "node:assert"
@@ -1552,6 +1565,9 @@ export const defnoun = Effect.fnUntraced(function* (
 /**
  * Register custom 1st, 2nd, and 3rd person verb plural rules on the active `Inflector` service.
  *
+ * Arguments are singular/plural pairs for each person (`s1, p1, s2, p2, s3, p3`); pass `null` for a
+ * person you don't want to change. Fails with `BadUserDefinedPatternError` on an invalid pattern.
+ *
  * @example
  * ```ts
  * import * as assert from "node:assert"
@@ -1610,7 +1626,9 @@ export const defadj = Effect.fnUntraced(function* (
 })
 
 /**
- * Override the indefinite article to `"a"` for words matching `pattern`.
+ * Override the indefinite article to `"a"` for words matching `pattern`, a case-insensitive
+ * regular expression matched against the whole word (`"horrendous.*"`). Fails with
+ * `BadUserDefinedPatternError` when the pattern is not a valid regular expression.
  *
  * @example
  * ```ts
@@ -1635,7 +1653,9 @@ export const defa = Effect.fnUntraced(function* (pattern: string | null) {
 })
 
 /**
- * Override the indefinite article to `"an"` for words matching `pattern`.
+ * Override the indefinite article to `"an"` for words matching `pattern`, a case-insensitive
+ * regular expression matched against the whole word (`"FAQ"`). Fails with
+ * `BadUserDefinedPatternError` when the pattern is not a valid regular expression.
  *
  * @example
  * ```ts

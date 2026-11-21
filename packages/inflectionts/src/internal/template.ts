@@ -10,14 +10,8 @@ import {
   InvalidWordError,
   NumOutOfRangeError
 } from "../Errors.ts"
-import type {
-  CountInput,
-  Gender,
-  InflectorState,
-  NumberInput,
-  NumberToWordsOptions
-} from "../Schema.ts"
-import { isGender } from "../Schema.ts"
+import type { CountInput, InflectorState, NumberInput, NumberToWordsOptions } from "../Schema.ts"
+import { Gender, isGender } from "../Schema.ts"
 import { aWord, noWord } from "./articles.ts"
 import { numberToWordsCore, ordinalValue } from "./numbers.ts"
 import {
@@ -448,7 +442,7 @@ export const evaluateInflectTemplate = Effect.fnUntraced(function* (
             const formatted = formatPythonLiteral(genderRaw)
             return yield* new BadGenderError({
               gender: formatted,
-              message: `Invalid gender '${formatted}'`
+              message: `Invalid gender ${formatted}; expected one of: ${Gender.literals.join(", ")}`
             })
           }
           gender = genderRaw

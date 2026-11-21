@@ -13,14 +13,14 @@ With [Nix](https://nixos.org/download), `direnv allow` or `nix develop` gives yo
 
 ## Layout
 
-| Path                         | What it holds                                                                                                                                                      |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `packages/inflectionts/src`  | The library. `Inflector.ts` (service and operations), `Schema.ts` (types and state), `Errors.ts` (typed errors), `internal/` (rules and word lists, not exported). |
-| `packages/inflectionts/test` | Tests. `upstream/` ports Python inflect's tests; `PARITY.md` maps each one.                                                                                        |
-| `apps/cli`                   | The `inflect` command-line tool.                                                                                                                                   |
-| `docs/`                      | Tutorial, how-to guides, and explanation.                                                                                                                          |
-| `evals/`                     | Adoption and cold-start evaluations for the docs.                                                                                                                  |
-| `repos/effect`               | Read-only copy of Effect 4.1.4's source, for reference. Never edit or import it.                                                                                   |
+| Path                         | What it holds                                                                                                                                                                                        |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/inflectionts/src`  | The library. `Inflector.ts` (service and operations), `Schema.ts` (types and state), `Errors.ts` (typed errors), `internal/` (rules and word lists; not exported, tests import it as `#internal/*`). |
+| `packages/inflectionts/test` | Tests. `upstream/` ports Python inflect's tests; `PARITY.md` maps each one.                                                                                                                          |
+| `apps/cli`                   | The `inflect` command-line tool.                                                                                                                                                                     |
+| `docs/`                      | Tutorial, how-to guides, and explanation.                                                                                                                                                            |
+| `evals/`                     | Adoption and cold-start evaluations for the docs.                                                                                                                                                    |
+| `repos/effect`               | Read-only copy of Effect 4.1.4's source, for reference. Never edit or import it.                                                                                                                     |
 
 ## Everyday commands
 
@@ -33,7 +33,7 @@ bun run fix                                 # autofix lint, then format
 bun run check                               # everything the pre-commit hook and Nix check
 ```
 
-`bun run check` runs, in order: the toolchain preflight, `bun install --frozen-lockfile`, formatting, type checking, lint, tests, and `docs`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md` and `docs/`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them.
+`bun run check` runs, in order: the toolchain preflight, `bun install --frozen-lockfile`, formatting, type checking, lint, tests, and `docs`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md`, `docs/`, and `skills/inflectionts/SKILL.md`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them.
 
 ## Change a word list
 

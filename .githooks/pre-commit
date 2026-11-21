@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Run the same gates as `nix flake check` before each commit; the project remote
-# runs no CI. Installed by the Nix dev shell via `core.hooksPath`. Skip once with
-# `git commit --no-verify`.
+# Run `bun run check` (the same gates as CI) before each commit. Installed by the
+# Nix dev shell via `core.hooksPath`. Skip once with `git commit --no-verify`.
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"

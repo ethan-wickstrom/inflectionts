@@ -87,12 +87,3 @@ export {
   type NumberToWordsOptions,
   type UserDefinedEntry
 } from "./Schema.ts"
-
-export {
-  bysize,
-  enclose,
-  joinstem,
-  partitionWord,
-  postprocess,
-  udMatch
-} from "./internal/helpers.ts"

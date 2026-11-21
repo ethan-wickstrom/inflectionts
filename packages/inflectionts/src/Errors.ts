@@ -105,7 +105,8 @@ export class BadGenderError extends Schema.TaggedError<
 }) {}
 
 /**
- * Raised when `inflect` encounters a syntax error, undefined identifier, or non-literal expression.
+ * Raised when a recognized `inflect` template call has a malformed argument, such as an undefined
+ * name (`plural(x)`) or a non-literal expression. Unrecognized calls are left unchanged instead.
  *
  * @stability stable
  * @since 0.1.0

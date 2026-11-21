@@ -10,7 +10,6 @@ import {
   applyGender,
   BadGenderError,
   BadUserDefinedPatternError,
-  bysize,
   classical,
   compare,
   compareAdjs,
@@ -24,32 +23,29 @@ import {
   defaultState,
   defnoun,
   defverb,
-  enclose,
   gender,
   getState,
   Inflector,
   InvalidWordError,
   isInflectorService,
   isInflectorState,
-  joinstem,
   no,
   noClassical,
-  partitionWord,
   plural,
   pluralAdj,
   pluralNoun,
   pluralVerb,
-  postprocess,
   presentParticiple,
   singularNoun,
   StateTypeId,
   TypeId,
-  udMatch,
   UnknownClassicalModeError
 } from "inflectionts"
 import { BadGenderError as SubpathBadGenderError } from "inflectionts/Errors"
 import { TypeId as SubpathTypeId } from "inflectionts/Inflector"
 import { StateTypeId as SubpathStateTypeId } from "inflectionts/Schema"
+
+import { bysize, enclose, joinstem, partitionWord, postprocess, udMatch } from "#internal/helpers"
 
 import { runInflector, runInflectorExit } from "./helpers.ts"
 
@@ -264,6 +260,9 @@ describe("classical modes", () => {
       expect(err?._tag).toBe("Fail")
       if (err?._tag === "Fail") {
         expect(err.error).toBeInstanceOf(UnknownClassicalModeError)
+        expect(err.error.message).toBe(
+          "Unknown classical mode 'bogus'; expected one of: all, zero, herd, names, persons, ancient"
+        )
       }
     }
   })
@@ -483,6 +482,7 @@ describe("gender, comparisons, presentParticiple, and user-defined rules", () =>
       expect(reason?._tag).toBe("Fail")
       if (reason?._tag === "Fail") {
         expect(reason.error).toBeInstanceOf(BadGenderError)
+        expect(reason.error.message).toContain("Invalid gender 'invalid'; expected one of: neuter,")
       }
     }
   })

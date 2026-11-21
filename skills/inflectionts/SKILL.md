@@ -24,6 +24,8 @@ Do not use it when:
 bun add inflectionts effect   # or: npm install inflectionts effect
 ```
 
+Not on npm yet: until 0.1.0 is published, build the tarball from a clone as the README's Install section shows (https://github.com/ethan-wickstrom/inflectionts#install).
+
 ## Use it
 
 Every operation needs the `Inflector` service. Provide `Inflector.layer` once at the edge of the program.
@@ -70,7 +72,7 @@ category
 | -------------------------- | --------------------------------------------------------------- | --------------------------------------------- |
 | Plural for a count         | `plural(word, count?)`, `pluralNoun`, `pluralVerb`, `pluralAdj` | `string`                                      |
 | Count plus word, 0 as "no" | `no(word, count)`                                               | `"3 People"`, `"no errors"`                   |
-| Singular                   | `singularNoun(word)`                                            | `Option<string>`, `None` if already singular  |
+| Singular                   | `singularNoun(word)`                                            | `Option<string>`; wrong on singular input     |
 | Article                    | `a(word)` / `an(word)`                                          | `"an hour"`                                   |
 | Ordinal                    | `ordinal(21)`, `ordinal("twenty-one")`                          | `"21st"`, `"twenty-first"`                    |
 | Number in words            | `numberToWords(n, { andword?: "" })`                            | `"one thousand, two hundred and thirty-four"` |
@@ -91,4 +93,4 @@ category
 
 - README: https://github.com/ethan-wickstrom/inflectionts#readme
 - How-to guides: https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/how-to.md
-- API (every export has a tested example): https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Inflector.ts
+- API (every operation has a tested example): https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Inflector.ts

@@ -36,6 +36,9 @@
   ],
   "type": "module",
   "sideEffects": [],
+  "imports": {
+    "#internal/*": "./src/internal/*.ts"
+  },
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",

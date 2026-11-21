@@ -1,4 +1,4 @@
-import { Argument, Command, Flag } from "effect/cli"
+import { Argument, CliError, Command, Flag } from "effect/cli"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as Match from "effect/Match"
@@ -43,6 +43,12 @@ export class AlreadySingularError extends Schema.TaggedError<
   message: Schema.String
 }) {}
 
+// Command.run prints a UserError as a one-line message with exit code 1, instead of
+// logging the typed library error with a stack trace.
+const asUserError = Effect.mapError(
+  (cause: { readonly message: string }) => new CliError.UserError({ cause })
+)
+
 const GENDER_CHOICES: ReadonlyArray<GenderType> = [
   "neuter",
   "feminine",
@@ -71,7 +77,7 @@ const wordArg = Argument.String("word").pipe(
 
 const root = Command.make("inflect").pipe(
   Command.withDescription(
-    "English inflection CLI for plurals, singulars, articles, ordinals, and number words"
+    "English inflection CLI: plurals, singulars, word comparison, articles, ordinals, number words, check amounts, lists, and templates. Docs: https://github.com/ethan-wickstrom/inflectionts#readme"
   ),
   Command.withSharedFlags({
     classical: Flag.Boolean("classical").pipe(
@@ -128,7 +134,7 @@ const pluralCmd = Command.make(
       Match.exhaustive
     )
     yield* Console.log(result)
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("pl"),
   Command.withDescription("Pluralize a singular noun, verb, adjective, or general word"),
@@ -171,9 +177,9 @@ const singularCmd = Command.make(
     }
     return yield* new AlreadySingularError({
       word,
-      message: `'${word}' is already singular or has no singular form`
+      message: `'${word}' is already singular or has no singular form; pass --fallback to print it unchanged`
     })
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("sg"),
   Command.withDescription("Convert a plural noun or pronoun to its singular form"),
@@ -208,12 +214,15 @@ const compareCmd = Command.make(
       Match.exhaustive
     )
     yield* Console.log(comparisonCode(comparison) ?? "none")
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("cmp"),
   Command.withDescription(
     "Compare two words regardless of grammatical number (eq, s:p, p:s, p:p, or none)"
-  )
+  ),
+  Command.withExamples([
+    { command: "inflect compare index indices", description: "Singular vs plural -> s:p" }
+  ])
 )
 
 const articleCmd = Command.make(
@@ -225,7 +234,7 @@ const articleCmd = Command.make(
   Effect.fn("cli.article")(function* ({ count, word }) {
     const result = yield* a(word, Option.getOrUndefined(count))
     yield* Console.log(result)
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("a"),
   Command.withDescription("Prepend the appropriate indefinite article ('a' or 'an') to a word"),
@@ -244,7 +253,7 @@ const noCmd = Command.make(
   Effect.fn("cli.no")(function* ({ count, word }) {
     const result = yield* no(word, Option.getOrUndefined(count))
     yield* Console.log(result)
-  })
+  }, asUserError)
 ).pipe(
   Command.withDescription("Format a count-prefixed noun, replacing zero counts with 'no'"),
   Command.withExamples([
@@ -263,10 +272,11 @@ const participleCmd = Command.make(
   },
   Effect.fn("cli.participle")(function* ({ word }) {
     yield* Console.log(yield* presentParticiple(word))
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("ing"),
-  Command.withDescription("Generate the present participle (-ing form) for a verb")
+  Command.withDescription("Generate the present participle (-ing form) for a verb"),
+  Command.withExamples([{ command: "inflect participle run", description: "-> running" }])
 )
 
 const ordinalCmd = Command.make(
@@ -279,10 +289,14 @@ const ordinalCmd = Command.make(
   },
   Effect.fn("cli.ordinal")(function* ({ value }) {
     yield* Console.log(yield* ordinal(value))
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("ord"),
-  Command.withDescription("Convert a numeral or number word to its English ordinal")
+  Command.withDescription("Convert a numeral or number word to its English ordinal"),
+  Command.withExamples([
+    { command: "inflect ordinal 21", description: "-> 21st" },
+    { command: "inflect ordinal twenty-one", description: "-> twenty-first" }
+  ])
 )
 
 const wordsCmd = Command.make(
@@ -350,7 +364,7 @@ const wordsCmd = Command.make(
       return
     }
     yield* Console.log(yield* numberToWords(args.value, options))
-  })
+  }, asUserError)
 ).pipe(
   Command.withDescription("Spell out a number as English words"),
   Command.withExamples([
@@ -379,11 +393,17 @@ const currencyCmd = Command.make(
       andword: Option.getOrUndefined(andword)
     })
     yield* Console.log(result)
-  })
+  }, asUserError)
 ).pipe(
   Command.withDescription(
     "Format an amount in check-style currency words with half-up cent rounding"
-  )
+  ),
+  Command.withExamples([
+    {
+      command: "inflect currency 1234.56",
+      description: "-> one thousand, two hundred and thirty-four and 56/100"
+    }
+  ])
 )
 
 const joinCmd = Command.make(
@@ -424,7 +444,7 @@ const joinCmd = Command.make(
       conjSpaced
     })
     yield* Console.log(result)
-  })
+  }, asUserError)
 ).pipe(
   Command.withDescription("Join words into an English conjunction list"),
   Command.withExamples([
@@ -446,7 +466,7 @@ const templateCmd = Command.make(
   },
   Effect.fn("cli.template")(function* ({ text }) {
     yield* Console.log(yield* inflect(text))
-  })
+  }, asUserError)
 ).pipe(
   Command.withAlias("eval"),
   Command.withDescription("Interpolate inline inflection expressions inside a template string"),

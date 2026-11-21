@@ -12,6 +12,8 @@ bun init -y
 bun add inflectionts effect
 ```
 
+inflectionts isn't on npm yet, so until it is, replace the last command with the from-clone steps in the [README](../README.md#install).
+
 ## 2. Pluralize one word
 
 Replace `index.ts` with:

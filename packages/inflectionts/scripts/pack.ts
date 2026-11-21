@@ -12,7 +12,7 @@
  */
 import * as BunRuntime from "@effect/platform-bun/BunRuntime"
 import * as BunServices from "@effect/platform-bun/BunServices"
-import { Argument, Command } from "effect/cli"
+import { Argument, CliError, Command } from "effect/cli"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as FileSystem from "effect/FileSystem"
@@ -27,7 +27,12 @@ class PackError extends Schema.TaggedError<PackError, { readonly brand: unique s
   {
     message: Schema.String
   }
-) {}
+) {
+  // Command.run prints the message alone instead of logging a stack trace.
+  override get [CliError.userMessage]() {
+    return this.message
+  }
+}
 
 const Fields = Schema.Record(Schema.String, Schema.Unknown)
 
@@ -73,6 +78,8 @@ const pack = Effect.fn("pack")(function* (destination: Option.Option<string>) {
   const {
     publishConfig,
     devDependencies: _dev,
+    // `#internal/*` lets tests reach src/internal; the tarball has no src/.
+    imports: _imports,
     scripts: _scripts,
     ...published
   } = yield* Schema.decodeEffect(Manifest)(
