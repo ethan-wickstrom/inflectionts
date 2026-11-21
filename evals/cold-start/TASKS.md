@@ -51,7 +51,8 @@ Work in `$REPO` as a coding agent asked to do small tasks in this codebase.
 
 - **A1** Add a test file `packages/inflectionts/test/ordinal-words.test.ts` that checks the
   library turns the numbers 1, 2, and 3 into the words `first`, `second`, and `third`.
-- **A2** Run only the library tests whose names contain `ordinal`, and write the number of
-  tests that passed to `$OUT/A2.txt`.
+- **A2** In `packages/inflectionts` only (not `apps/cli`), run the tests whose full name
+  (`describe` titles plus the test title, as Bun's `-t` matches it) contains `ordinal`,
+  including the test you added in A1. Write the number that passed to `$OUT/A2.txt`.
 - **A3** Find the file in the vendored Effect source that defines `Context.Service`, and
   write its path relative to `$REPO` to `$OUT/A3.txt`.
