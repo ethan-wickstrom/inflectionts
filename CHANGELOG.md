@@ -7,7 +7,7 @@ incompatibly only in a major version.
 
 ## [Unreleased]
 
-## 0.1.0 - not yet published
+## [0.1.0] - 2026-11-21
 
 First release: an Effect v4 port of Python's [inflect](https://github.com/jaraco/inflect) 7.6 (upstream commit 2084a52).
 
@@ -26,4 +26,5 @@ First release: an Effect v4 port of Python's [inflect](https://github.com/jaraco
 - Typed errors in `inflectionts/Errors`, one `Schema.TaggedError` per failure, in place of
   inflect's exceptions. `PARITY.md` lists the 19 deliberate differences from inflect.
 
-[Unreleased]: https://github.com/ethan-wickstrom/inflectionts/commits/main
+[Unreleased]: https://github.com/ethan-wickstrom/inflectionts/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ethan-wickstrom/inflectionts/releases/tag/v0.1.0

@@ -42,14 +42,6 @@ bun add inflectionts effect   # or: npm install inflectionts effect
 
 `effect` (^4.1.4) is a peer dependency. The package is ESM-only and has no other runtime dependencies.
 
-**Not on npm yet.** Until 0.1.0 is published, the command above fails with a 404. Build the package from a clone instead (needs Bun 1.4.5 and Git):
-
-```sh
-git clone https://github.com/ethan-wickstrom/inflectionts /tmp/inflectionts
-(cd /tmp/inflectionts && bun install && bun packages/inflectionts/scripts/pack.ts /tmp)
-bun add /tmp/inflectionts-0.1.0.tgz effect
-```
-
 ## When to use it, and when not to
 
 Use inflectionts when an Effect v4 program has to inflect **words it doesn't know in advance**: user-named collections, rule names, model names, product names, or templates written by someone else.

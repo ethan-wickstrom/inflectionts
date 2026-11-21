@@ -24,8 +24,6 @@ Do not use it when:
 bun add inflectionts effect   # or: npm install inflectionts effect
 ```
 
-Not on npm yet: until 0.1.0 is published, build the tarball from a clone as the README's Install section shows (https://github.com/ethan-wickstrom/inflectionts#install).
-
 ## Use it
 
 Every operation needs the `Inflector` service. Provide `Inflector.layer` once at the edge of the program.
