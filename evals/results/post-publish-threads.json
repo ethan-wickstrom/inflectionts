@@ -1,0 +1,70 @@
+{
+  "run": "post-publish",
+  "date": "2026-11-21",
+  "commit": "76ff229",
+  "package": "@ethan-wickstrom/inflectionts@0.1.0 on npm",
+  "agent": "amp (anthropic/claude-opus-5-5), fresh orbs in project scratch-app (no PROJECTS.md, no clone of this repo)",
+  "coldStart": "T-01a1fbda-e725-7282-84f8-1746e3ebd298",
+  "adoption": {
+    "fit-collection-names": [
+      "T-01a1fbda-ef12-7660-a0c2-7672405b6409",
+      "T-01a1fbdb-b572-737c-a8f4-029a6066210d",
+      "T-01a1fbdc-7e1f-70da-bb6e-9cc15253131e"
+    ],
+    "fit-report-sentence": [
+      "T-01a1fbda-f6aa-77b6-984e-e79e67838274",
+      "T-01a1fbdb-bd4c-70ec-8a34-1857bed5cde6",
+      "T-01a1fbdc-88cb-72fc-ac97-70af8afa17e7"
+    ],
+    "fit-a-or-an": [
+      "T-01a1fbda-fe10-712c-9b25-aa0aba51d59a",
+      "T-01a1fbdb-c560-755c-8bdd-8f399904d0b3",
+      "T-01a1fbdc-923a-7657-bb59-a622f12af1f6"
+    ],
+    "fit-ordinals-singular": [
+      "T-01a1fbdb-0603-72ba-aab9-e22636ff1885",
+      "T-01a1fbdb-cc40-71e0-a260-d81e426bb1ff",
+      "T-01a1fbdc-9d15-75f1-9fc8-9938e22f2f50"
+    ],
+    "fit-templates": [
+      "T-01a1fbdb-0eb6-7188-9f61-87efaf0c41da",
+      "T-01a1fbdb-d2c8-75a1-9ace-00b351073008",
+      "T-01a1fbdc-a4ab-7103-8749-bac449abc8bf"
+    ],
+    "border-few-resource-names": [
+      "T-01a1fbdb-18a0-71b1-a5d2-e65d76f8e508",
+      "T-01a1fbdb-d9f1-73ce-98dc-de98cb28bd09",
+      "T-01a1fbdc-aca1-77ad-bb82-2330d9e1b627"
+    ],
+    "border-effect3-migration": [
+      "T-01a1fbdb-288d-72ad-9a36-97fca436f4fc",
+      "T-01a1fbdb-f52c-76fe-92c4-3d243c4e6d05",
+      "T-01a1fbdc-b8d4-7616-bffe-c39ba6f8c20f"
+    ],
+    "border-check-words": [
+      "T-01a1fbdb-30a0-77ee-ba0f-215626e9612d",
+      "T-01a1fbdb-fce1-7046-bd91-c1d7e8dbb03c",
+      "T-01a1fbdc-c078-7442-b867-19c6d3bb3b20"
+    ],
+    "out-react-comments": [
+      "T-01a1fbdb-3934-7049-96bd-9c5b5c681426",
+      "T-01a1fbdc-03e6-7482-8e0a-66973a3fb3b8",
+      "T-01a1fbdc-c9cc-70ce-a564-b8640a939030"
+    ],
+    "out-effect-fixed-label": [
+      "T-01a1fbdb-3fcc-71fb-b5f0-4cf4e322e3ea",
+      "T-01a1fbdc-0d63-74a7-aac8-1132f9aad2eb",
+      "T-01a1fbdc-d242-764a-81c8-be241f1e592f"
+    ],
+    "out-express-routes": [
+      "T-01a1fbdb-46ca-70a5-afba-9df2f9f316a5",
+      "T-01a1fbdc-13da-75a8-b974-2b047b292704",
+      "T-01a1fbdc-d9ff-737f-9ea0-da0fde45059c"
+    ],
+    "out-python": [
+      "T-01a1fbdb-4efc-736e-ab82-4703830fe59e",
+      "T-01a1fbdc-1d92-761b-b5b8-17de6bca7d06",
+      "T-01a1fbdc-e1c3-7338-b962-30c31b4e8707"
+    ]
+  }
+}

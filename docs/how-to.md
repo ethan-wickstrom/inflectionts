@@ -237,10 +237,10 @@ import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 
 const program = Effect.gen(function* () {
-  yield* defnoun("pokémon", "pokémon")
+  yield* defnoun("bison", "bison")
   yield* defnoun("VAX", "VAXen", { case: "preserve" })
   yield* defan("FAQ")
-  yield* Console.log(yield* pluralNoun("pokémon"))
+  yield* Console.log(yield* pluralNoun("bison"))
   yield* Console.log(yield* pluralNoun("VAX"))
   yield* Console.log(yield* a("FAQ"))
 })
@@ -249,7 +249,7 @@ Effect.runSync(program.pipe(Effect.provide(Inflector.layer)))
 ```
 
 ```output
-pokémon
+bison
 VAXen
 an FAQ
 ```
