@@ -48,7 +48,12 @@
               ./.oxlintrc.json
               ./.oxfmtrc.json
               ./README.md
+              ./CHANGELOG.md
+              ./CONTRIBUTING.md
+              ./AGENTS.md
+              ./llms.txt
               ./LICENSE
+              ./evals
               ./docs
               ./skills
               ./packages
@@ -424,6 +429,7 @@
               lint = mkSandboxedCheck "lint" "bun run lint";
               test = mkSandboxedCheck "test" "bun run test";
               docs = mkSandboxedCheck "docs" "patchShebangs packages/inflectionts/scripts/bin && bun run docs";
+              links = mkSandboxedCheck "links" "bun run links";
               package-consumer = packageConsumerCheck;
             };
         }

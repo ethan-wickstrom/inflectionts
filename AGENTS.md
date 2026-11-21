@@ -10,6 +10,7 @@ Run from the repository root. The dev shell (`direnv allow` or `nix develop`) pi
 - `bun run fix`: autofix lint, then format. Run it before `check`.
 - `bun test <path>` or `bun test -t <name>`: tests run against `src/`, no build needed.
 - `bun run docs`: runs every `@example` in `src/*.ts` (docgen) and every `ts` block in `README.md`, `docs/`, and `skills/inflectionts/SKILL.md` (`scripts/check-docs.ts`). A `ts` block followed by an `output` block must print exactly that.
+- `bun run links`: checks relative and repository links and their `#anchors` offline; `bun run links:external` also fetches external links (CI runs it).
 - `nix flake check`: the same gates in a sandbox, plus the packed-tarball consumer test. Run it after changing `flake.nix`, `nix/`, or dependencies.
 
 ## Where things are
@@ -23,7 +24,7 @@ Run from the repository root. The dev shell (`direnv allow` or `nix develop`) pi
 
 ## Rules the checks don't catch
 
-- When behavior changes, update the `@example` and the docs blocks that show it in the same commit, and `PARITY.md` if the change makes an upstream test pass, fail, or diverge. Keep README claims checkable: a test or a running block must back each one.
+- When behavior changes, update the `@example` and the docs blocks that show it in the same commit, and `PARITY.md` if the change makes an upstream test pass, fail, or diverge. Keep README claims checkable: a test or a running block must back each one. Add user-visible changes under `## [Unreleased]` in `CHANGELOG.md`.
 - Never `npm publish` or `bun pm pack` inside `packages/inflectionts`: they ship the development `exports` (`./src/*.ts`). Use `bun scripts/pack.ts <dir>` and publish that tarball.
 - After changing any `package.json` dependency, run `bun install` and `nix run .#lock`, and commit `bun.lock` with `nix/bun-cache-hashes.nix`.
 - Shared versions live in the root `catalog`; packages reference them as `"catalog:"`. Every imported package must be declared in the package that imports it (isolated linker).

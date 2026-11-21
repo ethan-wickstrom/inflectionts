@@ -17,3 +17,4 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun run check
+      - run: bun run links:external

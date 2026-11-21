@@ -33,7 +33,9 @@ bun run fix                                 # autofix lint, then format
 bun run check                               # everything the pre-commit hook and Nix check
 ```
 
-`bun run check` runs, in order: the toolchain preflight, `bun install --frozen-lockfile`, formatting, type checking, lint, tests, and `docs`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md`, `docs/`, and `skills/inflectionts/SKILL.md`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them.
+`bun run check` runs, in order: the toolchain preflight, `bun install --frozen-lockfile`, formatting, type checking, lint, tests, `docs`, and `links`. The `docs` step runs every `@example` in the API JSDoc with `@effect/docgen` and every `ts` code block in `README.md`, `docs/`, and `skills/inflectionts/SKILL.md`; a block followed by an `output` block must print exactly that. If you change behavior, the docs that describe it fail until you update them. The `links` step checks every relative link and every link to this repository on GitHub, including `#anchors`, offline; `bun run links:external` also fetches external links, and CI runs it after `check`.
+
+Add a line under `## [Unreleased]` in `CHANGELOG.md` for every change a package user would notice.
 
 ## Change a word list
 
@@ -49,6 +51,8 @@ nix run .#lock    # updates nix/bun-cache-hashes.nix; commit it with bun.lock
 ```
 
 ## Release
+
+Set `version` in `packages/inflectionts/package.json`, then in `CHANGELOG.md` rename `## [Unreleased]` to `## [<version>] - <date>`, add a new empty `## [Unreleased]` above it, and point the link definitions at the `v<version>` tag. After publishing, tag the commit `v<version>`.
 
 ```sh
 cd packages/inflectionts

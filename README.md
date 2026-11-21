@@ -66,6 +66,7 @@ Don't use it when:
 - [How-to guides](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/how-to.md): label counts, pick `a` or `an`, ordinals, singular names, money in words, templates, custom words, errors, and calling from non-Effect code.
 - [Explanation](https://github.com/ethan-wickstrom/inflectionts/blob/main/docs/explanation.md): why it's an Effect service, how state is isolated, modern versus classical plurals, and how it relates to Python's inflect.
 - API reference, in the source: [`src/Inflector.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Inflector.ts) documents the service and every operation, each with an example that CI type-checks and runs; [`src/Schema.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Schema.ts) has the option and state types and [`src/Errors.ts`](https://github.com/ethan-wickstrom/inflectionts/blob/main/packages/inflectionts/src/Errors.ts) the error classes, both without examples. `bun run docs` renders the reference to Markdown.
+- [Changelog](https://github.com/ethan-wickstrom/inflectionts/blob/main/CHANGELOG.md): what changed in each version.
 - [Contributing](https://github.com/ethan-wickstrom/inflectionts/blob/main/CONTRIBUTING.md): set up, test, change word lists, and release.
 
 ## Command line

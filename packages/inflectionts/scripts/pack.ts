@@ -4,7 +4,7 @@
  * `bun pm pack` keeps the development `exports` (which point at `./src/*.ts`) and ignores
  * `publishConfig.exports`, so packing this directory directly ships a package whose imports
  * fail to resolve. This program builds the package, then stages what consumers receive in a
- * scoped temporary directory: `dist/`, the repository README and LICENSE, and a manifest whose
+ * scoped temporary directory: `dist/`, the repository README, CHANGELOG, and LICENSE, and a manifest whose
  * `exports` come from `publishConfig` without the workspace-only `devDependencies` and
  * `scripts`.
  *
@@ -97,6 +97,7 @@ const pack = Effect.fn("pack")(function* (destination: Option.Option<string>) {
   const stage = yield* fs.makeTempDirectoryScoped({ prefix: "inflectionts-pack-" })
   yield* fs.copy(path.join(packageDir, "dist"), path.join(stage, "dist"))
   yield* fs.copyFile(path.join(repoRoot, "README.md"), path.join(stage, "README.md"))
+  yield* fs.copyFile(path.join(repoRoot, "CHANGELOG.md"), path.join(stage, "CHANGELOG.md"))
   yield* fs.copyFile(path.join(repoRoot, "LICENSE"), path.join(stage, "LICENSE"))
   yield* fs.writeFileString(
     path.join(stage, "package.json"),

@@ -22,7 +22,7 @@
   "scripts": {
     "build": "bun run --filter '*' build",
     "build:types": "bun run --bun effect-tsgo tsc -b tsconfig.build.json",
-    "check": "scripts/preflight && bun install --frozen-lockfile && bun run format:check && bun run typecheck && bun run lint && bun run test && bun run docs",
+    "check": "scripts/preflight && bun install --frozen-lockfile && bun run format:check && bun run typecheck && bun run lint && bun run test && bun run docs && bun run links",
     "fix": "bun run lint:fix && bun run format",
     "format": "bun run --bun oxfmt",
     "format:check": "bun run --bun oxfmt --check",
@@ -30,7 +30,9 @@
     "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages apps",
     "test": "bun test --no-env-file",
     "typecheck": "bun run --bun effect-tsgo tsc -b",
-    "docs": "bun run --filter inflectionts docs"
+    "docs": "bun run --filter inflectionts docs",
+    "links": "bun packages/inflectionts/scripts/check-links.ts",
+    "links:external": "bun packages/inflectionts/scripts/check-links.ts --external"
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:",
