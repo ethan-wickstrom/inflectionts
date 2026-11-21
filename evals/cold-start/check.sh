@@ -38,12 +38,12 @@ expect_output() {
 }
 
 # U1: dependency resolved from the npm registry, not a file, link, or workspace path.
-if [[ ! -f "$USERAPP/node_modules/inflectionts/package.json" ]]; then
+if [[ ! -f "$USERAPP/node_modules/@ethan-wickstrom/inflectionts/package.json" ]]; then
   result U1 "inflectionts is not installed in $USERAPP"
-elif ! jq -e '.dependencies.inflectionts // empty | test("^(file:|link:|workspace:|/|\\.)") | not' \
+elif ! jq -e '.dependencies["@ethan-wickstrom/inflectionts"] // empty | test("^(file:|link:|workspace:|/|\\.)") | not' \
   "$USERAPP/package.json" >/dev/null 2>&1; then
-  result U1 "dependency is not a registry range: $(jq -c '.dependencies.inflectionts' "$USERAPP/package.json")"
-elif ! grep -q '"inflectionts@[0-9]' "$USERAPP/bun.lock" 2>/dev/null; then
+  result U1 "dependency is not a registry range: $(jq -c '.dependencies["@ethan-wickstrom/inflectionts"]' "$USERAPP/package.json")"
+elif ! grep -q '"@ethan-wickstrom/inflectionts@[0-9]' "$USERAPP/bun.lock" 2>/dev/null; then
   result U1 "bun.lock does not resolve inflectionts from the registry"
 else
   result U1 ok
@@ -72,7 +72,7 @@ fi
 probe="$REPO/packages/inflectionts/.cold-start-probe.ts"
 cat >"$probe" <<'EOF'
 import * as Effect from "effect/Effect"
-import { Inflector, plural } from "inflectionts"
+import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
 const out = await Effect.runPromise(
   Effect.all([plural("pokémon"), plural("Pokémon")]).pipe(Effect.provide(Inflector.layer))
 )

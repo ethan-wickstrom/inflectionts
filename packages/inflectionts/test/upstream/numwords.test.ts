@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 
+import { numberToCurrency, numberToWords, ordinal } from "@ethan-wickstrom/inflectionts"
 import * as Effect from "effect/Effect"
-import { numberToCurrency, numberToWords, ordinal } from "inflectionts"
 
 import { runInflector } from "../helpers.ts"
 

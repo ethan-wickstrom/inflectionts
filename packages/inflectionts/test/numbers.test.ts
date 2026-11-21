@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test"
 
-import { Effect, Exit } from "effect"
 import {
   BadChunkingOptionError,
   BadNumValueError,
@@ -9,7 +8,8 @@ import {
   numberToWordsList,
   NumOutOfRangeError,
   ordinal
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import { Effect, Exit } from "effect"
 
 import { runInflector, runInflectorExit } from "./helpers.ts"
 

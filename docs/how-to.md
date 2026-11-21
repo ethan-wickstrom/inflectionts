@@ -1,6 +1,6 @@
 # How-to guides
 
-Each guide assumes `inflectionts` and `effect` are installed (see the [README](../README.md#install)) and shows a complete program you can run with `bun`. New to the library? Start with the [tutorial](tutorial.md).
+Each guide assumes `@ethan-wickstrom/inflectionts` and `effect` are installed (see the [README](../README.md#install)) and shows a complete program you can run with `bun`. New to the library? Start with the [tutorial](tutorial.md).
 
 - [Label a count with any noun](#label-a-count-with-any-noun)
 - [Put "a" or "an" before a word](#put-a-or-an-before-a-word)
@@ -19,9 +19,9 @@ Each guide assumes `inflectionts` and `effect` are installed (see the [README](.
 `no(word, count)` prefixes the count and inflects the word to match. A count of 0 becomes "no". Capitalization follows the input.
 
 ```ts
+import { Inflector, no } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, no } from "inflectionts"
 
 const program = Effect.gen(function* () {
   for (const [name, count] of [
@@ -47,9 +47,9 @@ To get only the word without the count, use `plural(word, count)`.
 Pass the **singular** form. Like Python's inflect, the plural functions assume their input is singular. An already-plural word gets a second ending from `pluralNoun`, and `plural` may read it as a verb instead:
 
 ```ts
+import { Inflector, plural, pluralNoun } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, plural, pluralNoun } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* pluralNoun("cats"))
@@ -73,9 +73,9 @@ Running input through `singularNoun` first is not a safe fix: it also changes wo
 `a` (also exported as `an`) chooses by pronunciation, including silent "h", "u" pronounced "you", and abbreviations read letter by letter.
 
 ```ts
+import { a, Inflector } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { a, Inflector } from "inflectionts"
 
 const program = Effect.gen(function* () {
   for (const word of ["hour-long call", "unicorn sticker", "FBI agent", "European tour"]) {
@@ -100,9 +100,9 @@ Acronyms read as words follow the first sound of the word, so `a("FAQ")` gives "
 `ordinal` keeps the input's form: a number gives "21st", a number word gives "twenty-first". To get the ordinal word from a number, spell the number out first.
 
 ```ts
+import { Inflector, numberToWords, ordinal } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, numberToWords, ordinal } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* ordinal(21))
@@ -128,10 +128,10 @@ one thousand, two hundred thirty-four
 `singularNoun` returns an `Option`: `Some` with the singular, or `None` when it recognizes the word as already singular. A singular word ending in "s" can come back wrong ("bus" gives `Some("bu")`), so call it only on words you know are plural.
 
 ```ts
+import { Inflector, singularNoun } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
-import { Inflector, singularNoun } from "inflectionts"
 
 const modelName = (table: string) =>
   singularNoun(table).pipe(Effect.map(Option.getOrElse(() => table)))
@@ -157,9 +157,9 @@ user
 `numberToCurrency` rounds cents half up and writes them as `XX/100`.
 
 ```ts
+import { Inflector, numberToCurrency } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, numberToCurrency } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* numberToCurrency(1234.56, { andword: "" }))
@@ -179,9 +179,9 @@ two and 68/100
 `inflect` evaluates calls inside a string. The names use inflect's snake_case: `plural`, `plural_noun`, `plural_verb`, `plural_adj`, `singular_noun`, `a`, `an`, `no`, `present_participle`, `ordinal`, `number_to_words`, and `num`. `num(n)` prints `n` and sets the count for the calls after it in the same template.
 
 ```ts
+import { inflect, Inflector } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { inflect, Inflector } from "inflectionts"
 
 const template = "You have num(%d) plural('new message') from plural('child')"
 
@@ -205,9 +205,9 @@ Text that isn't a call to one of those names, including camelCase names such as 
 By default plurals follow modern English ("cactuses", "formulas"). `classical` switches modes on for the current `Inflector`.
 
 ```ts
+import { classical, Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { classical, Inflector, pluralNoun } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* pluralNoun("cactus"))
@@ -232,9 +232,9 @@ Other modes: `herd` ("wildebeest" stays "wildebeest"), `persons` ("person" becom
 `defnoun`, `defverb`, `defadj`, `defa`, and `defan` add rules that take priority over the built-in ones. Pass `{ case: "preserve" }` to `defnoun` to keep the plural's capitalization exactly as you wrote it.
 
 ```ts
+import { a, defan, defnoun, Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { a, defan, defnoun, Inflector, pluralNoun } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* defnoun("pokémon", "pokémon")
@@ -261,9 +261,15 @@ Rules live in the `Inflector` you provided, so they don't leak into other progra
 Build the starting state once with the pure `apply*` functions, then provide it with `Inflector.layerWith`. Every program that uses that layer starts with your rules.
 
 ```ts
+import {
+  applyClassical,
+  applyDefNoun,
+  defaultState,
+  Inflector,
+  pluralNoun
+} from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { applyClassical, applyDefNoun, defaultState, Inflector, pluralNoun } from "inflectionts"
 
 const InflectorWithHouseRules = Effect.gen(function* () {
   const withOctopodes = yield* applyDefNoun(defaultState, "octopus", "octopodes")
@@ -292,9 +298,9 @@ formulae
 Errors are typed values in the `Effect` error channel. An empty word fails with `InvalidWordError`; an unknown gender fails with `BadGenderError`. Recover with `Effect.catchTag`.
 
 ```ts
+import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, plural } from "inflectionts"
 
 const program = plural("").pipe(
   Effect.catchTag("InvalidWordError", (error) => Effect.succeed(`rejected: ${error._tag}`)),
@@ -313,8 +319,8 @@ rejected: InvalidWordError
 Create one `ManagedRuntime` for the lifetime of your app and run operations through it. It returns plain values.
 
 ```ts
+import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
 import * as ManagedRuntime from "effect/ManagedRuntime"
-import { Inflector, plural } from "inflectionts"
 
 const inflector = ManagedRuntime.make(Inflector.layer)
 

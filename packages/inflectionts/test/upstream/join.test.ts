@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 
+import { join } from "@ethan-wickstrom/inflectionts"
 import * as Effect from "effect/Effect"
-import { join } from "inflectionts"
 
 import { runInflector } from "../helpers.ts"
 

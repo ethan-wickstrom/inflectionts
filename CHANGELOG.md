@@ -9,7 +9,8 @@ incompatibly only in a major version.
 
 ## [0.1.0] - 2026-11-21
 
-First release: an Effect v4 port of Python's [inflect](https://github.com/jaraco/inflect) 7.6 (upstream commit 2084a52).
+Published as `@ethan-wickstrom/inflectionts`; npm rejected the unscoped name as too similar to
+`inflection`. First release: an Effect v4 port of Python's [inflect](https://github.com/jaraco/inflect) 7.6 (upstream commit 2084a52).
 
 ### Added
 
@@ -23,7 +24,7 @@ First release: an Effect v4 port of Python's [inflect](https://github.com/jaraco
 - `join` for English lists and `inflect` for templates such as `"num(3) plural('child')"`.
 - Settings and custom words: `classical`, `gender`, `defnoun`, `defverb`, `defadj`, `defa`,
   `defan`, and their pure `apply*` counterparts for building a starting state.
-- Typed errors in `inflectionts/Errors`, one `Schema.TaggedError` per failure, in place of
+- Typed errors in `@ethan-wickstrom/inflectionts/Errors`, one `Schema.TaggedError` per failure, in place of
   inflect's exceptions. `PARITY.md` lists the 19 deliberate differences from inflect.
 
 [Unreleased]: https://github.com/ethan-wickstrom/inflectionts/compare/v0.1.0...HEAD

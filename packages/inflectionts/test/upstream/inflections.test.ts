@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test"
 
-import * as Effect from "effect/Effect"
 import {
   BadNumValueError,
   classical,
@@ -14,7 +13,8 @@ import {
   num,
   ordinal,
   plural
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import * as Effect from "effect/Effect"
 
 import { runInflector } from "../helpers.ts"
 

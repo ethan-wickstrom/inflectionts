@@ -9,7 +9,7 @@ You need [Bun](https://bun.sh) 1.4 or later.
 ```sh
 mkdir summary && cd summary
 bun init -y
-bun add inflectionts effect
+bun add @ethan-wickstrom/inflectionts effect
 ```
 
 ## 2. Pluralize one word
@@ -17,9 +17,9 @@ bun add inflectionts effect
 Replace `index.ts` with:
 
 ```ts
+import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, plural } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* plural("error"))
@@ -41,9 +41,9 @@ Two things happened. `plural("error")` built an `Effect`, a description of work.
 Pass the count as the second argument. A count of 1 keeps the singular form:
 
 ```ts
+import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, plural } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* plural("error", 1))
@@ -63,9 +63,9 @@ errors
 The verb has to agree too, and the count reads better as words. Use `pluralVerb` and `numberToWords`:
 
 ```ts
+import { Inflector, numberToWords, plural, pluralVerb } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { Inflector, numberToWords, plural, pluralVerb } from "inflectionts"
 
 const summary = (rule: string, count: number, files: number) =>
   Effect.gen(function* () {

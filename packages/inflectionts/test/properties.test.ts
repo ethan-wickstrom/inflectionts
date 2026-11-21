@@ -1,8 +1,5 @@
 import { describe, test } from "bun:test"
 
-import * as Arbitrary from "effect/Arbitrary"
-import * as Effect from "effect/Effect"
-import * as Schema from "effect/Schema"
 import {
   a,
   compare,
@@ -19,7 +16,10 @@ import {
   pluralAdj,
   pluralNoun,
   pluralVerb
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import * as Arbitrary from "effect/Arbitrary"
+import * as Effect from "effect/Effect"
+import * as Schema from "effect/Schema"
 
 import { checkInflectorProperty } from "./helpers.ts"
 

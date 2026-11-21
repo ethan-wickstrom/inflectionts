@@ -1,8 +1,5 @@
 import { describe, expect, test } from "bun:test"
 
-import * as Effect from "effect/Effect"
-import * as Exit from "effect/Exit"
-import * as Option from "effect/Option"
 import {
   allClassical,
   applyClassical,
@@ -40,10 +37,13 @@ import {
   StateTypeId,
   TypeId,
   UnknownClassicalModeError
-} from "inflectionts"
-import { BadGenderError as SubpathBadGenderError } from "inflectionts/Errors"
-import { TypeId as SubpathTypeId } from "inflectionts/Inflector"
-import { StateTypeId as SubpathStateTypeId } from "inflectionts/Schema"
+} from "@ethan-wickstrom/inflectionts"
+import { BadGenderError as SubpathBadGenderError } from "@ethan-wickstrom/inflectionts/Errors"
+import { TypeId as SubpathTypeId } from "@ethan-wickstrom/inflectionts/Inflector"
+import { StateTypeId as SubpathStateTypeId } from "@ethan-wickstrom/inflectionts/Schema"
+import * as Effect from "effect/Effect"
+import * as Exit from "effect/Exit"
+import * as Option from "effect/Option"
 
 import { bysize, enclose, joinstem, partitionWord, postprocess, udMatch } from "#internal/helpers"
 

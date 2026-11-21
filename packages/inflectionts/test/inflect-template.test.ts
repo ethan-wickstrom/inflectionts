@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test"
 
-import { Effect, Exit } from "effect"
 import {
   BadNumValueError,
   getState,
@@ -8,7 +7,8 @@ import {
   InflectTemplateError,
   num,
   plural
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import { Effect, Exit } from "effect"
 
 import { runInflector, runInflectorExit } from "./helpers.ts"
 

@@ -1,8 +1,8 @@
+import { Inflector, type InflectorState } from "@ethan-wickstrom/inflectionts"
 import * as Arbitrary from "effect/Arbitrary"
 import * as Effect from "effect/Effect"
 import type * as Exit from "effect/Exit"
 import * as Layer from "effect/Layer"
-import { Inflector, type InflectorState } from "inflectionts"
 
 /**
  * Run a scoped Effect inside Bun's test runner, surfacing any failure or defect.

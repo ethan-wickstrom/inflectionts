@@ -1,9 +1,3 @@
-import { Argument, CliError, Command, Flag } from "effect/cli"
-import * as Console from "effect/Console"
-import * as Effect from "effect/Effect"
-import * as Match from "effect/Match"
-import * as Option from "effect/Option"
-import * as Schema from "effect/Schema"
 import {
   a,
   applyClassical,
@@ -33,7 +27,13 @@ import {
   type Gender as GenderType,
   type NumberToWordsOptions,
   Word
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import { Argument, CliError, Command, Flag } from "effect/cli"
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import * as Match from "effect/Match"
+import * as Option from "effect/Option"
+import * as Schema from "effect/Schema"
 
 export class AlreadySingularError extends Schema.TaggedError<
   AlreadySingularError,

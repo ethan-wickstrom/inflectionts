@@ -57,7 +57,7 @@ Set `version` in `packages/inflectionts/package.json`, then in `CHANGELOG.md` re
 ```sh
 cd packages/inflectionts
 bun scripts/pack.ts /tmp/release      # builds and prints the tarball path
-npm publish /tmp/release/inflectionts-<version>.tgz
+npm publish /tmp/release/ethan-wickstrom-inflectionts-<version>.tgz
 ```
 
 Publish the tarball from `scripts/pack.ts`, never the package directory: `bun pm pack` and `npm publish` in `packages/inflectionts` would ship the development `exports`, which point at `src/`.

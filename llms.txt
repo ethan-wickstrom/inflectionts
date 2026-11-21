@@ -1,6 +1,6 @@
 # inflectionts
 
-> English inflection for Effect v4 TypeScript programs: plurals, singulars, a/an, ordinals, number words, check amounts, and count-aware templates, for words not known in advance. A port of Python's inflect. Install with `bun add inflectionts effect`; `effect` ^4.1.4 is a peer dependency. Not for fixed count labels (use Intl.PluralRules), projects without Effect (use pluralize), or languages other than English.
+> English inflection for Effect v4 TypeScript programs: plurals, singulars, a/an, ordinals, number words, check amounts, and count-aware templates, for words not known in advance. A port of Python's inflect. Install with `bun add @ethan-wickstrom/inflectionts effect`; `effect` ^4.1.4 is a peer dependency. Not for fixed count labels (use Intl.PluralRules), projects without Effect (use pluralize), or languages other than English.
 
 ## Start here
 

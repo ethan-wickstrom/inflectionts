@@ -9,9 +9,9 @@ Inflection looks like a pure function, but it isn't quite: Python's inflect keep
 inflectionts puts that state behind an Effect service, `Inflector`. Each time you provide `Inflector.layer`, Effect builds a new service with its own state. Two programs that provide the layer separately never see each other's rules:
 
 ```ts
+import { defnoun, Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
-import { defnoun, Inflector, pluralNoun } from "inflectionts"
 
 const withRule = Effect.gen(function* () {
   yield* defnoun("octopus", "octopodes")
@@ -35,7 +35,7 @@ Every operation therefore has the type `Effect<A, E, Inflector>`: `A` is the res
 
 ## About errors
 
-Invalid input, such as an empty word, an unknown classical mode, or a malformed template, is an expected failure, not a bug. Each one is a `Schema.TaggedError` class in `inflectionts/Errors` with a `_tag`, so the error type of every operation lists exactly what can go wrong and `Effect.catchTag` can handle each case. Inputs the library accepts are never thrown as exceptions.
+Invalid input, such as an empty word, an unknown classical mode, or a malformed template, is an expected failure, not a bug. Each one is a `Schema.TaggedError` class in `@ethan-wickstrom/inflectionts/Errors` with a `_tag`, so the error type of every operation lists exactly what can go wrong and `Effect.catchTag` can handle each case. Inputs the library accepts are never thrown as exceptions.
 
 ## About pure state functions
 

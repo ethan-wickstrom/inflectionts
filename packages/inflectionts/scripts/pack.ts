@@ -1,5 +1,5 @@
 /**
- * Pack the npm tarball for `inflectionts` and print its absolute path.
+ * Pack the npm tarball for `@ethan-wickstrom/inflectionts` and print its absolute path.
  *
  * `bun pm pack` keeps the development `exports` (which point at `./src/*.ts`) and ignores
  * `publishConfig.exports`, so packing this directory directly ships a package whose imports
@@ -39,6 +39,7 @@ const Fields = Schema.Record(Schema.String, Schema.Unknown)
 const Manifest = Schema.fromJsonString(
   Schema.StructWithRest(
     Schema.Struct({
+      name: Schema.String,
       version: Schema.String,
       exports: Fields,
       publishConfig: Schema.StructWithRest(Schema.Struct({ exports: Fields }), [Fields])
@@ -106,7 +107,9 @@ const pack = Effect.fn("pack")(function* (destination: Option.Option<string>) {
   yield* fs.makeDirectory(outDir, { recursive: true })
   yield* run(stage, "bun", ["pm", "pack", "--destination", outDir, "--quiet"])
 
-  yield* Console.log(path.join(outDir, `inflectionts-${published.version}.tgz`))
+  // npm names a scoped package's tarball without the @ and with - for /.
+  const tarball = `${published.name.replace(/^@/, "").replace("/", "-")}-${published.version}.tgz`
+  yield* Console.log(path.join(outDir, tarball))
 }, Effect.scoped)
 
 const command = Command.make(

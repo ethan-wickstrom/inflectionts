@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@effect/platform-bun": "catalog:",
-    "effect": "catalog:",
-    "inflectionts": "workspace:*"
+    "@ethan-wickstrom/inflectionts": "workspace:*",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

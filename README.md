@@ -10,10 +10,17 @@
 English inflection for [Effect v4](https://effect.website) programs: plurals, singulars, `a`/`an`, ordinals, number words, and count-aware templates for words you don't know in advance. A TypeScript port of Python's [inflect](https://github.com/jaraco/inflect).
 
 ```ts
+import {
+  a,
+  Inflector,
+  no,
+  numberToWords,
+  ordinal,
+  singularNoun
+} from "@ethan-wickstrom/inflectionts"
 import * as Console from "effect/Console"
 import * as Effect from "effect/Effect"
 import * as Option from "effect/Option"
-import { a, Inflector, no, numberToWords, ordinal, singularNoun } from "inflectionts"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* no("Person", 3))
@@ -37,7 +44,7 @@ analysis
 ## Install
 
 ```sh
-bun add inflectionts effect   # or: npm install inflectionts effect
+bun add @ethan-wickstrom/inflectionts effect   # or: npm install @ethan-wickstrom/inflectionts effect
 ```
 
 `effect` (^4.1.4) is a peer dependency. The package is ESM-only and has no other runtime dependencies.

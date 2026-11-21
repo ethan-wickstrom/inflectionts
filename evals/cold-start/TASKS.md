@@ -22,7 +22,7 @@ for. Record the time you started and the time each task first passed.
 Work in `$USERAPP`, a new Bun project outside the repository, as someone who found the
 package and wants to use it in their own app.
 
-- **U1** Add `inflectionts` to `$USERAPP` from the npm registry, the way a user would.
+- **U1** Add the `@ethan-wickstrom/inflectionts` package to `$USERAPP` from the npm registry, the way a user would.
 - **U2** Write `$USERAPP/plural.ts`. Running `bun plural.ts` prints the plural of `person`,
   `cactus`, `analysis`, `mouse`, and `sheep`, one per line, in that order.
 - **U3** Write `$USERAPP/article.ts`. It prints `hour`, `unicorn`, `FAQ`, `apple`, and

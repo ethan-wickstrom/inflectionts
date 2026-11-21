@@ -30,7 +30,7 @@
     "lint:fix": "bun run build:types && bun run --bun effect-tsgo oxlint --type-aware --fix packages apps",
     "test": "bun test --no-env-file",
     "typecheck": "bun run --bun effect-tsgo tsc -b",
-    "docs": "bun run --filter inflectionts docs",
+    "docs": "bun run --filter @ethan-wickstrom/inflectionts docs",
     "links": "bun packages/inflectionts/scripts/check-links.ts",
     "links:external": "bun packages/inflectionts/scripts/check-links.ts --external"
   },

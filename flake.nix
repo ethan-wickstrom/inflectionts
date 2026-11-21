@@ -265,23 +265,23 @@
             test -f "$tarball"
 
             consumer_dir="$(mktemp -d)"
-            mkdir -p "$consumer_dir/node_modules/inflectionts"
-            tar -xzf "$tarball" -C "$consumer_dir/node_modules/inflectionts" --strip-components=1
+            mkdir -p "$consumer_dir/node_modules/@ethan-wickstrom/inflectionts"
+            tar -xzf "$tarball" -C "$consumer_dir/node_modules/@ethan-wickstrom/inflectionts" --strip-components=1
 
             # Verify no catalog:, workspace:, or ./src/ paths leaked into the packed manifest
-            if grep -E '"(catalog|workspace):|"./src/' "$consumer_dir/node_modules/inflectionts/package.json"; then
+            if grep -E '"(catalog|workspace):|"./src/' "$consumer_dir/node_modules/@ethan-wickstrom/inflectionts/package.json"; then
               echo "Packed package.json contains unresolved catalog/workspace or src export" >&2
               exit 1
             fi
 
             # Verify peerDependencies preserves a compatible semver range for effect
-            peer_range="$(jq -r '.peerDependencies.effect' "$consumer_dir/node_modules/inflectionts/package.json")"
+            peer_range="$(jq -r '.peerDependencies.effect' "$consumer_dir/node_modules/@ethan-wickstrom/inflectionts/package.json")"
             if [[ "$peer_range" != "^4.1.4" ]]; then
               echo "Expected peerDependencies.effect = ^4.1.4, got $peer_range" >&2
               exit 1
             fi
 
-            if [ -d "$consumer_dir/node_modules/inflectionts/src" ]; then
+            if [ -d "$consumer_dir/node_modules/@ethan-wickstrom/inflectionts/src" ]; then
               echo "Packed tarball unexpectedly includes src/" >&2
               exit 1
             fi
@@ -327,10 +327,10 @@
               pluralNoun,
               singularNoun,
               Word
-            } from "inflectionts"
-            import { InvalidWordError } from "inflectionts/Errors"
-            import { TypeId } from "inflectionts/Inflector"
-            import { StateTypeId } from "inflectionts/Schema"
+            } from "@ethan-wickstrom/inflectionts"
+            import { InvalidWordError } from "@ethan-wickstrom/inflectionts/Errors"
+            import { TypeId } from "@ethan-wickstrom/inflectionts/Inflector"
+            import { StateTypeId } from "@ethan-wickstrom/inflectionts/Schema"
 
             const program = Effect.gen(function* () {
               const word: Word = Schema.decodeUnknownSync(Word)("person")
@@ -363,7 +363,7 @@
             bun --no-env-file "$consumer_dir/check.ts"
 
             # Verify ./internal/* is blocked by exports
-            if bun --no-env-file -e 'await import("inflectionts/internal/data")' 2>/dev/null; then
+            if bun --no-env-file -e 'await import("@ethan-wickstrom/inflectionts/internal/data")' 2>/dev/null; then
               echo "Expected inflectionts/internal/data import to be blocked" >&2
               exit 1
             fi

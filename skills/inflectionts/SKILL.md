@@ -21,7 +21,7 @@ Do not use it when:
 ## Install
 
 ```sh
-bun add inflectionts effect   # or: npm install inflectionts effect
+bun add @ethan-wickstrom/inflectionts effect   # or: npm install @ethan-wickstrom/inflectionts effect
 ```
 
 ## Use it
@@ -29,9 +29,6 @@ bun add inflectionts effect   # or: npm install inflectionts effect
 Every operation needs the `Inflector` service. Provide `Inflector.layer` once at the edge of the program.
 
 ```ts
-import * as Console from "effect/Console"
-import * as Effect from "effect/Effect"
-import * as Option from "effect/Option"
 import {
   a,
   Inflector,
@@ -41,7 +38,10 @@ import {
   plural,
   pluralVerb,
   singularNoun
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import * as Console from "effect/Console"
+import * as Effect from "effect/Effect"
+import * as Option from "effect/Option"
 
 const program = Effect.gen(function* () {
   yield* Console.log(yield* no("Person", 3))

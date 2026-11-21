@@ -882,7 +882,7 @@ export const makeInflector = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, plural } from "inflectionts"
+ * import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
  *
  * // Provide the layer once at the edge of your program, then run it.
  * const result = Effect.runSync(plural("person").pipe(Effect.provide(Inflector.layer)))
@@ -893,7 +893,7 @@ export const makeInflector = Effect.fnUntraced(function* (
  * @since 0.1.0
  */
 export class Inflector extends Context.Service<Inflector, InflectorService>()(
-  "inflectionts/Inflector"
+  "@ethan-wickstrom/inflectionts/Inflector"
 ) {
   /**
    * Default `Inflector` layer with isolated state initialized to `defaultState`.
@@ -920,7 +920,7 @@ export class Inflector extends Context.Service<Inflector, InflectorService>()(
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { classical, getState, Inflector } from "inflectionts"
+ * import { classical, getState, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* classical({ ancient: true })
@@ -945,7 +945,7 @@ export const getState: Effect.Effect<InflectorState, never, Inflector> = Effect.
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, plural } from "inflectionts"
+ * import { Inflector, plural } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* plural("person"), "people")
@@ -972,7 +972,7 @@ export const plural = Effect.fnUntraced(function* (text: string, count?: CountIn
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, pluralNoun } from "inflectionts"
+ * import { Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* pluralNoun("mouse"), "mice")
@@ -999,7 +999,7 @@ export const pluralNoun = Effect.fnUntraced(function* (text: string, count?: Cou
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, pluralVerb } from "inflectionts"
+ * import { Inflector, pluralVerb } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* pluralVerb("was"), "were")
@@ -1025,7 +1025,7 @@ export const pluralVerb = Effect.fnUntraced(function* (text: string, count?: Cou
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, pluralAdj } from "inflectionts"
+ * import { Inflector, pluralAdj } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* pluralAdj("my"), "our")
@@ -1053,7 +1053,7 @@ export const pluralAdj = Effect.fnUntraced(function* (text: string, count?: Coun
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
  * import * as Option from "effect/Option"
- * import { Inflector, singularNoun } from "inflectionts"
+ * import { Inflector, singularNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.deepStrictEqual(yield* singularNoun("people"), Option.some("person"))
@@ -1085,7 +1085,7 @@ export const singularNoun = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { compare, comparisonCode, Inflector } from "inflectionts"
+ * import { compare, comparisonCode, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(comparisonCode(yield* compare("index", "indices")), "s:p")
@@ -1111,7 +1111,7 @@ export const compare = Effect.fnUntraced(function* (word1: string, word2: string
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { compareNouns, comparisonCode, Inflector } from "inflectionts"
+ * import { compareNouns, comparisonCode, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(comparisonCode(yield* compareNouns("person", "people")), "s:p")
@@ -1135,7 +1135,7 @@ export const compareNouns = Effect.fnUntraced(function* (word1: string, word2: s
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { compareVerbs, comparisonCode, Inflector } from "inflectionts"
+ * import { compareVerbs, comparisonCode, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(comparisonCode(yield* compareVerbs("runs", "run")), "s:p")
@@ -1159,7 +1159,7 @@ export const compareVerbs = Effect.fnUntraced(function* (word1: string, word2: s
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { compareAdjs, comparisonCode, Inflector } from "inflectionts"
+ * import { compareAdjs, comparisonCode, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(comparisonCode(yield* compareAdjs("my", "our")), "s:p")
@@ -1185,7 +1185,7 @@ export const compareAdjs = Effect.fnUntraced(function* (word1: string, word2: st
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { a, Inflector } from "inflectionts"
+ * import { a, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* a("hour"), "an hour")
@@ -1211,7 +1211,7 @@ export const a = Effect.fnUntraced(function* (text: string, count?: CountInput) 
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { an, Inflector } from "inflectionts"
+ * import { an, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* an("apple"), "an apple")
@@ -1232,7 +1232,7 @@ export const an = a
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, no } from "inflectionts"
+ * import { Inflector, no } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* no("error", 0), "no errors")
@@ -1262,7 +1262,7 @@ export const no = Effect.fnUntraced(function* (text: string, count?: CountInput)
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, num, pluralNoun } from "inflectionts"
+ * import { Inflector, num, pluralNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* num(3)
@@ -1292,7 +1292,7 @@ export const num = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, presentParticiple } from "inflectionts"
+ * import { Inflector, presentParticiple } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* presentParticiple("runs"), "running")
@@ -1317,7 +1317,7 @@ export const presentParticiple = Effect.fnUntraced(function* (word: string) {
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, numberToWords, ordinal } from "inflectionts"
+ * import { Inflector, numberToWords, ordinal } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* ordinal(21), "21st")
@@ -1344,7 +1344,7 @@ export const ordinal = Effect.fnUntraced(function* (input: NumberInput) {
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, numberToWords } from "inflectionts"
+ * import { Inflector, numberToWords } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* numberToWords(1234), "one thousand, two hundred and thirty-four")
@@ -1373,7 +1373,7 @@ export const numberToWords = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, numberToWordsList } from "inflectionts"
+ * import { Inflector, numberToWordsList } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.deepStrictEqual(yield* numberToWordsList(1234), ["one thousand", "two hundred and thirty-four"])
@@ -1400,7 +1400,7 @@ export const numberToWordsList = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, numberToCurrency } from "inflectionts"
+ * import { Inflector, numberToCurrency } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* numberToCurrency(2.675), "two and 68/100")
@@ -1427,7 +1427,7 @@ export const numberToCurrency = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { Inflector, join } from "inflectionts"
+ * import { Inflector, join } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* join(["apple", "banana", "carrot"]), "apple, banana, and carrot")
@@ -1461,7 +1461,7 @@ export const join = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { inflect, Inflector } from "inflectionts"
+ * import { inflect, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   assert.strictEqual(yield* inflect("There plural_verb('was', 2) no('error', 2)"), "There were 2 errors")
@@ -1487,7 +1487,7 @@ export const inflect = Effect.fnUntraced(function* (text: string) {
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { classical, Inflector, pluralNoun } from "inflectionts"
+ * import { classical, Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* classical({ ancient: true })
@@ -1515,7 +1515,7 @@ export const classical = Effect.fnUntraced(function* (
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
  * import * as Option from "effect/Option"
- * import { gender, Inflector, singularNoun } from "inflectionts"
+ * import { gender, Inflector, singularNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* gender("feminine")
@@ -1540,7 +1540,7 @@ export const gender = Effect.fnUntraced(function* (value: string) {
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { defnoun, Inflector, pluralNoun } from "inflectionts"
+ * import { defnoun, Inflector, pluralNoun } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* defnoun("VAX", "VAXen", { case: "preserve" })
@@ -1572,7 +1572,7 @@ export const defnoun = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { defverb, Inflector, pluralVerb } from "inflectionts"
+ * import { defverb, Inflector, pluralVerb } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* defverb("foobar", "feebar", null, null, null, null)
@@ -1604,7 +1604,7 @@ export const defverb = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { defadj, Inflector, pluralAdj } from "inflectionts"
+ * import { defadj, Inflector, pluralAdj } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* defadj("hir", "their")
@@ -1634,7 +1634,7 @@ export const defadj = Effect.fnUntraced(function* (
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { a, defa, Inflector } from "inflectionts"
+ * import { a, defa, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* defa("ewe")
@@ -1661,7 +1661,7 @@ export const defa = Effect.fnUntraced(function* (pattern: string | null) {
  * ```ts
  * import * as assert from "node:assert"
  * import * as Effect from "effect/Effect"
- * import { a, defan, Inflector } from "inflectionts"
+ * import { a, defan, Inflector } from "@ethan-wickstrom/inflectionts"
  *
  * const program = Effect.gen(function* () {
  *   yield* defan("horrendous.*")

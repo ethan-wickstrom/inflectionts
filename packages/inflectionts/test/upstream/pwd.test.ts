@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test"
 
-import * as Effect from "effect/Effect"
-import * as Option from "effect/Option"
 import {
   a,
   allClassical,
@@ -47,7 +45,9 @@ import {
   type CountInput,
   type InflectError,
   type NumberToWordsOptions
-} from "inflectionts"
+} from "@ethan-wickstrom/inflectionts"
+import * as Effect from "effect/Effect"
+import * as Option from "effect/Option"
 
 import { udMatch } from "#internal/helpers"
 

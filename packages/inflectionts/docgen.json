@@ -20,7 +20,7 @@
     "noUncheckedSideEffectImports": false,
     "types": ["bun"],
     "paths": {
-      "inflectionts": ["../../src/index.ts"]
+      "@ethan-wickstrom/inflectionts": ["../../src/index.ts"]
     }
   }
 }

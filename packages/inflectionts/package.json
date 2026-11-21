@@ -1,5 +1,5 @@
 {
-  "name": "inflectionts",
+  "name": "@ethan-wickstrom/inflectionts",
   "version": "0.1.0",
   "description": "Effect v4 TypeScript port of jaraco/inflect for English plurals, singulars, ordinals, indefinite articles, and number words",
   "keywords": [
